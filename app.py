@@ -397,35 +397,51 @@ def get_retrograde_planets_fallback(selected_date):
     
     # Check if selected date falls within any retrograde period
     for period in mercury_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Mercury Retrograde')
     
     for period in venus_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Venus Retrograde')
     
     for period in mars_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Mars Retrograde')
     
     for period in jupiter_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Jupiter Retrograde')
     
     for period in saturn_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Saturn Retrograde')
     
     for period in uranus_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Uranus Retrograde')
     
     for period in neptune_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Neptune Retrograde')
     
     for period in pluto_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+        if start_date <= selected_date <= end_date:
             retrogrades.append('Pluto Retrograde')
     
     return retrogrades
