@@ -1477,7 +1477,8 @@ planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
 
 # Get retrograde planets for selected date (now uses live calculation or fallback)
 retrograde_planets = get_retrograde_planets_calculated(
-    datetime.combine(st.session_state.selected_date, st.session_state.selected_time),
+    st.session_state.selected_date,
+    st.session_state.selected_time,
     st.session_state.selected_city
 )
 
