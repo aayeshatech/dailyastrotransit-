@@ -6,6 +6,7 @@ import plotly.express as px
 from datetime import datetime, timedelta, date
 import calendar
 import random
+import math
 
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
@@ -398,6 +399,118 @@ def get_intraday_aspects(selected_date):
         aspects.sort(key=lambda x: x['Time'])
         return aspects
 
+# Function to create birth chart visualization
+def create_birth_chart(planetary_positions):
+    # Define zodiac signs and their degrees
+    zodiac_signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+    
+    # Create a figure with polar coordinates
+    fig = go.Figure()
+    
+    # Add the outer circle for the zodiac
+    theta = np.linspace(0, 2*np.pi, 100)
+    r = np.ones_like(theta) * 12
+    
+    fig.add_trace(go.Scatterpolar(
+        r=r,
+        theta=theta * 180/np.pi,
+        mode='lines',
+        line=dict(color='black', width=2),
+        showlegend=False
+    ))
+    
+    # Add zodiac sign labels
+    for i, sign in enumerate(zodiac_signs):
+        angle = i * 30  # Each sign spans 30 degrees
+        fig.add_trace(go.Scatterpolar(
+            r=[13],
+            theta=[angle],
+            mode='text',
+            text=sign,
+            textfont=dict(size=12, color='black'),
+            showlegend=False
+        ))
+    
+    # Add house lines
+    for i in range(12):
+        angle = i * 30
+        fig.add_trace(go.Scatterpolar(
+            r=[0, 12],
+            theta=[angle, angle],
+            mode='lines',
+            line=dict(color='gray', width=1, dash='dash'),
+            showlegend=False
+        ))
+    
+    # Add house numbers
+    for i in range(12):
+        angle = i * 30 + 15  # Middle of the house
+        fig.add_trace(go.Scatterpolar(
+            r=[6],
+            theta=[angle],
+            mode='text',
+            text=str(i+1),
+            textfont=dict(size=10, color='gray'),
+            showlegend=False
+        ))
+    
+    # Define planet symbols
+    planet_symbols = {
+        'Sun': '☉',
+        'Moon': '☽',
+        'Mercury': '☿',
+        'Venus': '♀',
+        'Mars': '♂',
+        'Jupiter': '♃',
+        'Saturn': '♄',
+        'Rahu': '☊',
+        'Ketu': '☋'
+    }
+    
+    # Add planets to the chart
+    for planet in planetary_positions:
+        # Calculate position based on house and degree
+        house = planet['House']
+        degree = planet['Degree']
+        
+        # Convert to angle (0-360 degrees)
+        angle = (house - 1) * 30 + degree
+        
+        # Add planet symbol
+        fig.add_trace(go.Scatterpolar(
+            r=[10],
+            theta=[angle],
+            mode='markers+text',
+            marker=dict(size=20, color='blue'),
+            text=planet_symbols.get(planet['Planet'], planet['Planet'][0]),
+            textfont=dict(size=14, color='white'),
+            name=f"{planet['Planet']} (House {house}, {degree}°)",
+            showlegend=True
+        ))
+    
+    # Update layout
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=False,
+                range=[0, 14]
+            ),
+            angularaxis=dict(
+                visible=False,
+                rotation=90,
+                direction="clockwise"
+            )
+        ),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        title="Birth Chart / Natal Chart",
+        title_x=0.5,
+        height=600
+    )
+    
+    return fig
+
 # Tab 1: Input Date
 with tab1:
     st.header("Select Date for Report")
@@ -419,6 +532,22 @@ with tab1:
         
         if st.button("Generate Report"):
             st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')}")
+    
+    # Add birth chart visualization
+    st.markdown("---")
+    st.header("Birth Chart / Natal Chart")
+    
+    # Get planetary positions for the selected date
+    planetary_positions = get_planetary_positions(st.session_state.selected_date)
+    
+    # Create and display the birth chart
+    birth_chart = create_birth_chart(planetary_positions)
+    st.plotly_chart(birth_chart, use_container_width=True)
+    
+    # Display planetary positions data
+    st.markdown("### Planetary Positions")
+    positions_df = pd.DataFrame(planetary_positions)
+    st.dataframe(positions_df, use_container_width=True)
 
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
