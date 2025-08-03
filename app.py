@@ -18,7 +18,7 @@ st.markdown("---")
 
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = date(2025, 8, 2)  # Changed default to August 2, 2025
+    st.session_state.selected_date = date(2025, 8, 4)  # Changed default to August 4, 2025
 if 'selected_city' not in st.session_state:
     st.session_state.selected_city = "Mumbai, India"
 if 'planetary_options' not in st.session_state:
@@ -236,8 +236,21 @@ def generate_planetary_aspects(year, month):
 
 # Function to get planetary positions for a specific date
 def get_planetary_positions(selected_date):
-    # Specific data for August 2, 2025
-    if selected_date == date(2025, 8, 2):
+    # Specific data for August 4, 2025
+    if selected_date == date(2025, 8, 4):
+        return [
+            {'Planet': 'Sun', 'Lord': 'Moon', 'Sublord': 'Mercury', 'Degree': 17.5, 'House': 2, 'Nakshatra': 'Ashlesha', 'Effect': 'Positive'},
+            {'Planet': 'Moon', 'Lord': 'Mercury', 'Sublord': 'Ketu', 'Degree': 20.0, 'House': 6, 'Nakshatra': 'Jyeshtha', 'Effect': 'Negative'},
+            {'Planet': 'Mercury', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 10.0, 'House': 3, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
+            {'Planet': 'Venus', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 5.0, 'House': 3, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
+            {'Planet': 'Mars', 'Lord': 'Saturn', 'Sublord': 'Mercury', 'Degree': 10.0, 'House': 2, 'Nakshatra': 'Pushya', 'Effect': 'Negative'},
+            {'Planet': 'Jupiter', 'Lord': 'Sun', 'Sublord': 'Venus', 'Degree': 10.0, 'House': 12, 'Nakshatra': 'Krittika', 'Effect': 'Positive'},
+            {'Planet': 'Saturn', 'Lord': 'Saturn', 'Sublord': 'Jupiter', 'Degree': 5.0, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
+            {'Planet': 'Rahu', 'Lord': 'Mercury', 'Sublord': 'Sun', 'Degree': 20.0, 'House': 10, 'Nakshatra': 'Revati', 'Effect': 'Negative'},
+            {'Planet': 'Ketu', 'Lord': 'Mars', 'Sublord': 'Venus', 'Degree': 20.0, 'House': 4, 'Nakshatra': 'Chitra', 'Effect': 'Positive'}
+        ]
+    # Specific data for August 2, 2025 (keep existing)
+    elif selected_date == date(2025, 8, 2):
         return [
             {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
             {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
@@ -303,8 +316,21 @@ def get_planetary_positions(selected_date):
 
 # Function to get next house changes for a specific date
 def get_next_house_changes(selected_date):
-    # Specific data for August 2, 2025
-    if selected_date == date(2025, 8, 2):
+    # Specific data for August 4, 2025
+    if selected_date == date(2025, 8, 4):
+        return [
+            {'Planet': 'Sun', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Magha', 'Time of Change': '2025-08-16 10:30'},
+            {'Planet': 'Moon', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Mula', 'Time of Change': '2025-08-06 14:15'},
+            {'Planet': 'Mercury', 'Current House': 3, 'Next House': 4, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Purva Phalguni', 'Time of Change': '2025-08-05 09:45'},
+            {'Planet': 'Venus', 'Current House': 3, 'Next House': 4, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-08 16:20'},
+            {'Planet': 'Mars', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Ashlesha', 'Time of Change': '2025-08-05 11:30'},
+            {'Planet': 'Jupiter', 'Current House': 12, 'Next House': 1, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Rohini', 'Time of Change': '2025-08-07 13:45'},
+            {'Planet': 'Saturn', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-12 08:15'},
+            {'Planet': 'Rahu', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Ashwini', 'Time of Change': '2025-08-10 15:50'},
+            {'Planet': 'Ketu', 'Current House': 4, 'Next House': 5, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-09 12:25'}
+        ]
+    # Specific data for August 2, 2025 (keep existing)
+    elif selected_date == date(2025, 8, 2):
         return [
             {'Planet': 'Sun', 'Current House': 5, 'Next House': 6, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-16 10:30'},
             {'Planet': 'Moon', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Jyeshtha', 'Time of Change': '2025-08-04 14:15'},
@@ -353,8 +379,20 @@ def get_next_house_changes(selected_date):
 
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
-    # Specific data for August 2, 2025
-    if selected_date == date(2025, 8, 2):
+    # Specific data for August 4, 2025
+    if selected_date == date(2025, 8, 4):
+        return [
+            {'Time': '09:15', 'Aspect': 'Moon in Jyeshtha (Scorpio)', 'Effect': 'Bearish', 'Description': 'Rahu aspects Moon (exact trine). Saturn-Rahu conjunction in Pisces creates volatility.'},
+            {'Time': '10:15', 'Aspect': 'Mercury Hora starts', 'Effect': 'Bearish', 'Description': 'Mercury in Leo (Magha) aspected by Rahu. Technical breakdown likely.'},
+            {'Time': '11:15', 'Aspect': 'Sun Hora starts', 'Effect': 'Bullish (short-lived)', 'Description': 'Sun in Cancer (Ashlesha) aspected by Rahu, but Jupiter\'s 7th aspect provides support.'},
+            {'Time': '12:15', 'Aspect': 'Venus Hora starts', 'Effect': 'Volatile', 'Description': 'Venus in Leo (Magha) under Rahu\'s 5th aspect. Profit-booking likely.'},
+            {'Time': '13:15', 'Aspect': 'Moon Hora starts', 'Effect': 'Bearish', 'Description': 'Moon debilitated in Scorpio. Ketu sublord intensifies reversals.'},
+            {'Time': '14:15', 'Aspect': 'Mars Hora starts', 'Effect': 'Bearish', 'Description': 'Mars in Cancer (Pushya) aspected by Rahu. Banking sector pressure.'},
+            {'Time': '15:15', 'Aspect': 'Jupiter Hora starts', 'Effect': 'Mildly Bullish', 'Description': 'Jupiter in Taurus (Krittika) aspected by Saturn. Mild recovery attempt.'},
+            {'Time': '15:30', 'Aspect': 'Market Close', 'Effect': 'Bearish', 'Description': 'Moon at 23° Scorpio. Rahu influence dominates.'}
+        ]
+    # Specific data for August 2, 2025 (keep existing)
+    elif selected_date == date(2025, 8, 2):
         return [
             {'Time': '09:30', 'Aspect': 'Moon Sextile Venus', 'Effect': 'Bullish', 'Description': 'Harmonious emotional expression, social connections'},
             {'Time': '11:15', 'Aspect': 'Mars Square Jupiter', 'Effect': 'Bearish', 'Description': 'Conflict between action and expansion, overconfidence'},
@@ -1140,7 +1178,7 @@ with tab1:
         
         # Get days in selected month
         days_in_month = calendar.monthrange(selected_year, selected_month)[1]
-        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=1)  # Changed default to 2nd day
+        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=3)  # Changed default to 4th day
         
         selected_date = date(selected_year, selected_month, selected_day)
         st.session_state.selected_date = selected_date
@@ -1184,18 +1222,14 @@ with tab1:
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
 selected_month = st.session_state.selected_date.month
-
 # Generate moon phases for selected month
 moon_phases = generate_moon_phases(selected_year, selected_month)
-
 # Generate moon transits for selected month
 moon_transits = generate_moon_transits(selected_year, selected_month)
 moon_transit_df = pd.DataFrame(moon_transits)
 moon_transit_df['Date'] = pd.to_datetime(moon_transit_df['Date'])
-
 # Generate planetary aspects for selected month
 planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
-
 # Get retrograde planets for selected date
 retrograde_planets = get_retrograde_planets(datetime.combine(st.session_state.selected_date, datetime.min.time()))
 
@@ -1308,11 +1342,15 @@ planetary_effects = {
 
 # Intraday moon aspects (simplified for demo)
 intraday_moon_aspects = {
-    '2025-08-02': [
-        {'time': '09:30', 'aspect': 'Moon Sextile Venus', 'effect': 'Bullish', 'description': 'Harmonious emotional expression, social connections'},
-        {'time': '11:15', 'aspect': 'Mars Square Jupiter', 'effect': 'Bearish', 'description': 'Conflict between action and expansion, overconfidence'},
-        {'time': '13:45', 'aspect': 'Mercury Trine Saturn', 'effect': 'Bullish', 'description': 'Structured thinking, practical communication'},
-        {'time': '15:20', 'aspect': 'Sun Opposition Neptune', 'effect': 'Bearish', 'description': 'Confusion between reality and illusion, deception'}
+    '2025-08-04': [
+        {'time': '09:15', 'aspect': 'Moon in Jyeshtha (Scorpio)', 'effect': 'Bearish', 'description': 'Rahu aspects Moon (exact trine). Saturn-Rahu conjunction in Pisces creates volatility.'},
+        {'time': '10:15', 'aspect': 'Mercury Hora starts', 'effect': 'Bearish', 'description': 'Mercury in Leo (Magha) aspected by Rahu. Technical breakdown likely.'},
+        {'time': '11:15', 'aspect': 'Sun Hora starts', 'effect': 'Bullish (short-lived)', 'description': 'Sun in Cancer (Ashlesha) aspected by Rahu, but Jupiter\'s 7th aspect provides support.'},
+        {'time': '12:15', 'aspect': 'Venus Hora starts', 'effect': 'Volatile', 'description': 'Venus in Leo (Magha) under Rahu\'s 5th aspect. Profit-booking likely.'},
+        {'time': '13:15', 'aspect': 'Moon Hora starts', 'effect': 'Bearish', 'description': 'Moon debilitated in Scorpio. Ketu sublord intensifies reversals.'},
+        {'time': '14:15', 'aspect': 'Mars Hora starts', 'effect': 'Bearish', 'description': 'Mars in Cancer (Pushya) aspected by Rahu. Banking sector pressure.'},
+        {'time': '15:15', 'aspect': 'Jupiter Hora starts', 'effect': 'Mildly Bullish', 'description': 'Jupiter in Taurus (Krittika) aspected by Saturn. Mild recovery attempt.'},
+        {'time': '15:30', 'aspect': 'Market Close', 'effect': 'Bearish', 'description': 'Moon at 23° Scorpio. Rahu influence dominates.'}
     ],
     '2025-08-05': [
         {'time': '10:00', 'aspect': 'Moon Conjunct Mars', 'effect': 'Bearish', 'description': 'Aggressive energy, impulsive decisions'},
@@ -1564,7 +1602,7 @@ with tab4:
             # Create a timeline chart for intraday aspects
             fig = go.Figure()
             
-            colors = {'Bullish': 'green', 'Bearish': 'red', 'Neutral': 'gray'}
+            colors = {'Bullish': 'green', 'Bearish': 'red', 'Neutral': 'gray', 'Volatile': 'orange', 'Mildly Bullish': 'lightgreen', 'Bullish (short-lived)': 'lightgreen'}
             
             for _, aspect in aspects_df.iterrows():
                 fig.add_trace(go.Scatter(
@@ -1572,7 +1610,7 @@ with tab4:
                     y=[aspect['aspect']],
                     mode='markers',
                     marker=dict(
-                        color=colors[aspect['effect']],
+                        color=colors.get(aspect['effect'], 'blue'),
                         size=20,
                         symbol='diamond',
                         line=dict(width=1, color='black')
@@ -1667,7 +1705,7 @@ with tab5:
     # Create a timeline chart for intraday aspects
     fig = go.Figure()
     
-    colors = {'Bullish': 'green', 'Bearish': 'red', 'Neutral': 'gray'}
+    colors = {'Bullish': 'green', 'Bearish': 'red', 'Neutral': 'gray', 'Volatile': 'orange', 'Mildly Bullish': 'lightgreen', 'Bullish (short-lived)': 'lightgreen'}
     
     for _, aspect in intraday_df.iterrows():
         fig.add_trace(go.Scatter(
@@ -1675,7 +1713,7 @@ with tab5:
             y=[aspect['Aspect']],
             mode='markers',
             marker=dict(
-                color=colors[aspect['Effect']],
+                color=colors.get(aspect['Effect'], 'blue'),
                 size=20,
                 symbol='diamond',
                 line=dict(width=1, color='black')
