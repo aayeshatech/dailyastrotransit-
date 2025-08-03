@@ -8,6 +8,8 @@ import calendar
 import random
 import math
 import pytz
+from skyfield.api import load, Topos
+from skyfield.almanac import find_discrete, risings_and_settings
 
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
@@ -18,9 +20,9 @@ st.markdown("---")
 
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = date(2025, 8, 4)  # Changed default to August 4, 2025
+    st.session_state.selected_date = date(2025, 8, 4)
 if 'selected_time' not in st.session_state:
-    st.session_state.selected_time = time(9, 15)  # Default time 9:15 AM
+    st.session_state.selected_time = time(9, 15)
 if 'selected_city' not in st.session_state:
     st.session_state.selected_city = "Mumbai, India"
 if 'planetary_options' not in st.session_state:
@@ -30,6 +32,222 @@ if 'planetary_options' not in st.session_state:
         'Planetary Retrograde': True,
         'Moon Phases': True
     }
+
+# City coordinates for location-based calculations
+city_coordinates = {
+    "Mumbai, India": (19.0760, 72.8777),
+    "Delhi, India": (28.7041, 77.1025),
+    "Bangalore, India": (12.9716, 77.5946),
+    "Kolkata, India": (22.5726, 88.3639),
+    "Chennai, India": (13.0827, 80.2707),
+    "New York, USA": (40.7128, -74.0060),
+    "London, UK": (51.5074, -0.1278),
+    "Tokyo, Japan": (35.6762, 139.6503),
+    "Sydney, Australia": (-33.8688, 151.2093),
+    "Dubai, UAE": (25.2048, 55.2708),
+}
+
+# Zodiac signs and nakshatras
+zodiac_signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+
+nakshatras = [
+    'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
+    'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
+    'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+    'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
+    'Uttara Bhadrapada', 'Revati'
+]
+
+# Sign lords
+sign_lords = {
+    'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
+    'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
+    'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
+}
+
+# Nakshatra lords
+nakshatra_lords = {
+    'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
+    'Mrigashira': 'Mars', 'Ardra': 'Rahu', 'Punarvasu': 'Jupiter', 'Pushya': 'Saturn',
+    'Ashlesha': 'Mercury', 'Magha': 'Ketu', 'Purva Phalguni': 'Venus', 'Uttara Phalguni': 'Sun',
+    'Hasta': 'Moon', 'Chitra': 'Mars', 'Swati': 'Rahu', 'Vishakha': 'Jupiter',
+    'Anuradha': 'Saturn', 'Jyeshtha': 'Mercury', 'Mula': 'Ketu', 'Purva Ashadha': 'Venus',
+    'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
+    'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
+}
+
+# Exaltation and debilitation signs
+exaltation = {
+    'Sun': ('Aries', 10),
+    'Moon': ('Taurus', 3),
+    'Mercury': ('Virgo', 15),
+    'Venus': ('Pisces', 27),
+    'Mars': ('Capricorn', 28),
+    'Jupiter': ('Cancer', 5),
+    'Saturn': ('Libra', 20),
+}
+
+debilitation = {
+    'Sun': ('Libra', 10),
+    'Moon': ('Scorpio', 3),
+    'Mercury': ('Pisces', 15),
+    'Venus': ('Virgo', 27),
+    'Mars': ('Cancer', 28),
+    'Jupiter': ('Capricorn', 5),
+    'Saturn': ('Aries', 20),
+}
+
+# Own signs
+own_sign_lords = {
+    'Sun': 'Leo',
+    'Moon': 'Cancer',
+    'Mercury': ['Gemini', 'Virgo'],
+    'Venus': ['Taurus', 'Libra'],
+    'Mars': ['Aries', 'Scorpio'],
+    'Jupiter': ['Sagittarius', 'Pisces'],
+    'Saturn': ['Capricorn', 'Aquarius'],
+}
+
+# Initialize ephemeris (cached)
+@st.cache_resource
+def initialize_ephemeris():
+    eph = load('de421.bsp')
+    ts = load.timescale()
+    earth = eph['earth']
+    return eph, ts, earth
+
+# Calculate planetary positions for a given date and time
+def calculate_planetary_positions(selected_date, selected_time, selected_city):
+    # Get ephemeris data
+    eph, ts, earth = initialize_ephemeris()
+    
+    # Get city coordinates
+    lat, lon = city_coordinates.get(selected_city, (19.0760, 72.8777))
+    location = earth + Topos(latitude_degrees=lat, longitude_degrees=lon)
+    
+    # Create datetime object
+    dt = datetime.combine(selected_date, selected_time)
+    t = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+    
+    # Define planets
+    planets = {
+        'Sun': eph['sun'],
+        'Moon': eph['moon'],
+        'Mercury': eph['mercury'],
+        'Venus': eph['venus'],
+        'Mars': eph['mars'],
+        'Jupiter': eph['jupiter barycenter'],
+        'Saturn': eph['saturn barycenter'],
+        'Uranus': eph['uranus barycenter'],
+        'Neptune': eph['neptune barycenter'],
+        'Pluto': eph['pluto barycenter'],
+    }
+    
+    positions = []
+    for name, planet in planets.items():
+        # Calculate the geocentric ecliptic longitude
+        astrometric = location.at(t).observe(planet)
+        lon, lat, distance = astrometric.ecliptic_latlon()
+        degrees = lon.degrees % 360
+        
+        # Convert to sign and degree in sign
+        sign_index = int(degrees / 30)
+        sign = zodiac_signs[sign_index]
+        degree_in_sign = degrees % 30
+        
+        # Calculate nakshatra
+        nakshatra_index = int(degrees / (360/27)) % 27
+        nakshatra = nakshatras[nakshatra_index]
+        
+        # Get lord and sublord
+        lord = sign_lords[sign]
+        sublord = nakshatra_lords[nakshatra]
+        
+        # Determine effect
+        effect = 'Neutral'
+        if name in exaltation:
+            exalt_sign, exalt_degree = exaltation[name]
+            if sign == exalt_sign:
+                effect = 'Positive'
+        if name in debilitation:
+            debil_sign, debil_degree = debilitation[name]
+            if sign == debil_sign:
+                effect = 'Negative'
+        
+        # If the planet is in its own sign, set to positive (unless already negative)
+        if name in own_sign_lords:
+            own_signs = own_sign_lords[name]
+            if isinstance(own_signs, list):
+                if sign in own_signs and effect != 'Negative':
+                    effect = 'Positive'
+            else:
+                if sign == own_signs and effect != 'Negative':
+                    effect = 'Positive'
+        
+        positions.append({
+            'Planet': name,
+            'Lord': lord,
+            'Sublord': sublord,
+            'Degree': round(degree_in_sign, 2),
+            'House': 0,  # We'll set to 0 for now
+            'Nakshatra': nakshatra,
+            'Effect': effect
+        })
+    
+    return positions
+
+# Check if a planet is retrograde
+def is_retrograde(planet_name, t, eph, earth):
+    # Skip Sun and Moon as they are never retrograde
+    if planet_name in ['Sun', 'Moon']:
+        return False
+    
+    # Get planet
+    planet = eph[planet_name.lower() if planet_name != 'Pluto' else 'pluto barycenter']
+    
+    # Calculate position at current time and 1 hour later
+    t1 = t
+    t2 = t + timedelta(hours=1)
+    
+    astrometric1 = earth.at(t1).observe(planet)
+    lon1, _, _ = astrometric1.ecliptic_latlon()
+    lon1 = lon1.degrees % 360
+    
+    astrometric2 = earth.at(t2).observe(planet)
+    lon2, _, _ = astrometric2.ecliptic_latlon()
+    lon2 = lon2.degrees % 360
+    
+    # Calculate the difference, accounting for the 0-360 boundary
+    diff = (lon2 - lon1) % 360
+    if diff > 180:
+        diff -= 360
+    
+    # If diff is negative, the planet is retrograde
+    return diff < 0
+
+# Get retrograde planets for a given date and time
+def get_retrograde_planets_calculated(selected_date, selected_time, selected_city):
+    # Get ephemeris data
+    eph, ts, earth = initialize_ephemeris()
+    
+    # Get city coordinates
+    lat, lon = city_coordinates.get(selected_city, (19.0760, 72.8777))
+    location = earth + Topos(latitude_degrees=lat, longitude_degrees=lon)
+    
+    # Create datetime object
+    dt = datetime.combine(selected_date, selected_time)
+    t = ts.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+    
+    # Define planets to check (skip Sun and Moon)
+    planets_to_check = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+    
+    retrogrades = []
+    for planet_name in planets_to_check:
+        if is_retrograde(planet_name, t, eph, earth):
+            retrogrades.append(f'{planet_name} Retrograde')
+    
+    return retrogrades
 
 # Create tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Input Date", "Planetary Report", "Planetary Effect", "Upcoming Planetary Transit", "Today Transit"])
@@ -96,98 +314,6 @@ def generate_moon_transits(year, month):
     
     return transits
 
-# Function to get retrograde planets for any date
-def get_retrograde_planets(selected_date):
-    retrogrades = []
-    
-    # Mercury Retrograde periods
-    mercury_periods = [
-        {'start': '2025-01-01', 'end': '2025-01-25'},
-        {'start': '2025-05-18', 'end': '2025-06-11'},
-        {'start': '2025-09-09', 'end': '2025-10-02'},
-        {'start': '2026-01-02', 'end': '2026-01-26'},
-        {'start': '2026-05-19', 'end': '2026-06-12'},
-        {'start': '2026-09-10', 'end': '2026-10-03'}
-    ]
-    
-    # Venus Retrograde periods
-    venus_periods = [
-        {'start': '2025-03-22', 'end': '2025-04-30'},
-        {'start': '2026-03-23', 'end': '2026-05-01'}
-    ]
-    
-    # Mars Retrograde periods
-    mars_periods = [
-        {'start': '2024-12-06', 'end': '2025-02-23'},
-        {'start': '2025-07-11', 'end': '2025-09-29'},
-        {'start': '2026-12-07', 'end': '2027-02-24'}
-    ]
-    
-    # Jupiter Retrograde periods
-    jupiter_periods = [
-        {'start': '2025-11-04', 'end': '2026-03-14'},
-        {'start': '2026-11-05', 'end': '2027-03-15'}
-    ]
-    
-    # Saturn Retrograde periods
-    saturn_periods = [
-        {'start': '2025-06-29', 'end': '2025-11-15'},
-        {'start': '2026-06-29', 'end': '2026-11-15'}
-    ]
-    
-    # Uranus Retrograde periods
-    uranus_periods = [
-        {'start': '2025-08-29', 'end': '2026-01-27'},
-        {'start': '2026-08-29', 'end': '2027-01-27'}
-    ]
-    
-    # Neptune Retrograde periods
-    neptune_periods = [
-        {'start': '2025-07-02', 'end': '2025-12-08'},
-        {'start': '2026-07-02', 'end': '2026-12-08'}
-    ]
-    
-    # Pluto Retrograde periods
-    pluto_periods = [
-        {'start': '2025-05-02', 'end': '2025-10-11'},
-        {'start': '2026-05-02', 'end': '2026-10-11'}
-    ]
-    
-    # Check if selected date falls within any retrograde period
-    for period in mercury_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Mercury Retrograde')
-    
-    for period in venus_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Venus Retrograde')
-    
-    for period in mars_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Mars Retrograde')
-    
-    for period in jupiter_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Jupiter Retrograde')
-    
-    for period in saturn_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Saturn Retrograde')
-    
-    for period in uranus_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Uranus Retrograde')
-    
-    for period in neptune_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Neptune Retrograde')
-    
-    for period in pluto_periods:
-        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
-            retrogrades.append('Pluto Retrograde')
-    
-    return retrogrades
-
 # Function to generate planetary aspects for any month
 def generate_planetary_aspects(year, month):
     aspects = []
@@ -236,90 +362,17 @@ def generate_planetary_aspects(year, month):
     
     return aspects
 
-# Function to get planetary positions for a specific date
+# Function to get planetary positions for a specific date (now uses live calculation)
 def get_planetary_positions(selected_date):
-    # Specific data for August 4, 2025 (updated with correct real-time data)
-    if selected_date == date(2025, 8, 4):
-        return [
-            {'Planet': 'Sun', 'Lord': 'Moon', 'Sublord': 'Mercury', 'Degree': 17.49, 'House': 2, 'Nakshatra': 'Ashlesha', 'Effect': 'Positive'},
-            {'Planet': 'Moon', 'Lord': 'Mercury', 'Sublord': 'Ketu', 'Degree': 16.43, 'House': 6, 'Nakshatra': 'Jyeshtha', 'Effect': 'Negative'},
-            {'Planet': 'Mercury', 'Lord': 'Saturn', 'Sublord': 'Moon', 'Degree': 12.34, 'House': 3, 'Nakshatra': 'Pushya', 'Effect': 'Positive'},
-            {'Planet': 'Venus', 'Lord': 'Rahu', 'Sublord': 'Mercury', 'Degree': 10.24, 'House': 3, 'Nakshatra': 'Ardra', 'Effect': 'Positive'},
-            {'Planet': 'Mars', 'Lord': 'Ketu', 'Sublord': 'Sun', 'Degree': 4.02, 'House': 2, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Negative'},
-            {'Planet': 'Jupiter', 'Lord': 'Rahu', 'Sublord': 'Mercury', 'Degree': 18.10, 'House': 12, 'Nakshatra': 'Ardra', 'Effect': 'Positive'},
-            {'Planet': 'Saturn', 'Lord': 'Saturn', 'Sublord': 'Jupiter', 'Degree': 7.19, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Rahu', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 24.46, 'House': 10, 'Nakshatra': 'Purva Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Ketu', 'Lord': 'Venus', 'Sublord': 'Sun', 'Degree': 24.46, 'House': 4, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
-            {'Planet': 'Neptune', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 7.43, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'}
-        ]
-    # Specific data for August 2, 2025 (keep existing)
-    elif selected_date == date(2025, 8, 2):
-        return [
-            {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
-            {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
-            {'Planet': 'Mercury', 'Lord': 'Mercury', 'Sublord': 'Venus', 'Degree': 28.75, 'House': 5, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
-            {'Planet': 'Venus', 'Lord': 'Mercury', 'Sublord': 'Moon', 'Degree': 10.25, 'House': 6, 'Nakshatra': 'Hasta', 'Effect': 'Positive'},
-            {'Planet': 'Mars', 'Lord': 'Jupiter', 'Sublord': 'Ketu', 'Degree': 2.5, 'House': 8, 'Nakshatra': 'Mula', 'Effect': 'Negative'},
-            {'Planet': 'Jupiter', 'Lord': 'Mars', 'Sublord': 'Mercury', 'Degree': 20.67, 'House': 7, 'Nakshatra': 'Jyeshtha', 'Effect': 'Positive'},
-            {'Planet': 'Saturn', 'Lord': 'Jupiter', 'Sublord': 'Venus', 'Degree': 25.17, 'House': 8, 'Nakshatra': 'Purva Ashadha', 'Effect': 'Negative'},
-            {'Planet': 'Rahu', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 5.5, 'House': 12, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Ketu', 'Lord': 'Sun', 'Sublord': 'Sun', 'Degree': 5.5, 'House': 6, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Positive'}
-        ]
-    else:
-        # For other dates, generate random data
-        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
-        signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
-                 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-        
-        sign_lords = {
-            'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
-            'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
-            'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
-        }
-        
-        nakshatras = [
-            'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
-            'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
-            'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-            'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
-            'Uttara Bhadrapada', 'Revati'
-        ]
-        
-        nakshatra_lords = {
-            'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
-            'Mrigashira': 'Mars', 'Ardra': 'Rahu', 'Punarvasu': 'Jupiter', 'Pushya': 'Saturn',
-            'Ashlesha': 'Mercury', 'Magha': 'Ketu', 'Purva Phalguni': 'Venus', 'Uttara Phalguni': 'Sun',
-            'Hasta': 'Moon', 'Chitra': 'Mars', 'Swati': 'Rahu', 'Vishakha': 'Jupiter',
-            'Anuradha': 'Saturn', 'Jyeshtha': 'Mercury', 'Mula': 'Ketu', 'Purva Ashadha': 'Venus',
-            'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
-            'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
-        }
-        
-        positions = []
-        for planet in planets:
-            sign = random.choice(signs)
-            lord = sign_lords[sign]
-            nakshatra = random.choice(nakshatras)
-            sublord = nakshatra_lords[nakshatra]
-            degree = round(random.uniform(0, 30), 2)
-            house = random.randint(1, 12)
-            effect = random.choice(['Positive', 'Negative'])
-            
-            positions.append({
-                'Planet': planet,
-                'Lord': lord,
-                'Sublord': sublord,
-                'Degree': degree,
-                'House': house,
-                'Nakshatra': nakshatra,
-                'Effect': effect
-            })
-        
-        return positions
+    return calculate_planetary_positions(
+        selected_date, 
+        st.session_state.selected_time, 
+        st.session_state.selected_city
+    )
 
 # Function to get next house changes for a specific date
 def get_next_house_changes(selected_date):
-    # Specific data for August 4, 2025 (updated with correct real-time data)
+    # For now, we'll keep this as static data
     if selected_date == date(2025, 8, 4):
         return [
             {'Planet': 'Sun', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Magha', 'Time of Change': '2025-08-16 10:30'},
@@ -333,19 +386,6 @@ def get_next_house_changes(selected_date):
             {'Planet': 'Ketu', 'Current House': 4, 'Next House': 5, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-09 12:25'},
             {'Planet': 'Neptune', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-15 11:20'}
         ]
-    # Specific data for August 2, 2025 (keep existing)
-    elif selected_date == date(2025, 8, 2):
-        return [
-            {'Planet': 'Sun', 'Current House': 5, 'Next House': 6, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-16 10:30'},
-            {'Planet': 'Moon', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Jyeshtha', 'Time of Change': '2025-08-04 14:15'},
-            {'Planet': 'Mercury', 'Current House': 5, 'Next House': 6, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-03 09:45'},
-            {'Planet': 'Venus', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-08 16:20'},
-            {'Planet': 'Mars', 'Current House': 8, 'Next House': 9, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Purva Ashadha', 'Time of Change': '2025-08-05 11:30'},
-            {'Planet': 'Jupiter', 'Current House': 7, 'Next House': 8, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Mula', 'Time of Change': '2025-08-07 13:45'},
-            {'Planet': 'Saturn', 'Current House': 8, 'Next House': 9, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Ashadha', 'Time of Change': '2025-08-12 08:15'},
-            {'Planet': 'Rahu', 'Current House': 12, 'Next House': 1, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-10 15:50'},
-            {'Planet': 'Ketu', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-09 12:25'}
-        ]
     else:
         # For other dates, generate random data
         planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
@@ -356,13 +396,6 @@ def get_next_house_changes(selected_date):
             next_house = 1 if current_house == 12 else current_house + 1
             degree_at_change = round(random.uniform(0, 30), 2)
             
-            nakshatras = [
-                'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
-                'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
-                'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-                'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
-                'Uttara Bhadrapada', 'Revati'
-            ]
             nakshatra_at_change = random.choice(nakshatras)
             
             days_ahead = random.randint(1, 7)
@@ -383,7 +416,7 @@ def get_next_house_changes(selected_date):
 
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
-    # Specific data for August 4, 2025 (updated with correct real-time data)
+    # For now, we'll keep this as static data
     if selected_date == date(2025, 8, 4):
         return [
             {'Time': '09:15', 'Aspect': 'Moon in Jyeshtha (Scorpio)', 'Effect': 'Bearish', 'Description': 'Rahu aspects Moon (exact trine). Saturn-Rahu conjunction in Pisces creates volatility.'},
@@ -394,14 +427,6 @@ def get_intraday_aspects(selected_date):
             {'Time': '14:15', 'Aspect': 'Mars in Uttara Phalguni (Leo)', 'Effect': 'Bearish', 'Description': 'Mars in Uttara Phalguni aspected by Rahu. Banking sector pressure.'},
             {'Time': '15:15', 'Aspect': 'Jupiter in Ardra (Gemini)', 'Effect': 'Mildly Bullish', 'Description': 'Jupiter in Ardra aspected by Saturn. Mild recovery attempt.'},
             {'Time': '15:30', 'Aspect': 'Market Close', 'Effect': 'Bearish', 'Description': 'Moon at 23° Scorpio. Rahu influence dominates.'}
-        ]
-    # Specific data for August 2, 2025 (keep existing)
-    elif selected_date == date(2025, 8, 2):
-        return [
-            {'Time': '09:30', 'Aspect': 'Moon Sextile Venus', 'Effect': 'Bullish', 'Description': 'Harmonious emotional expression, social connections'},
-            {'Time': '11:15', 'Aspect': 'Mars Square Jupiter', 'Effect': 'Bearish', 'Description': 'Conflict between action and expansion, overconfidence'},
-            {'Time': '13:45', 'Aspect': 'Mercury Trine Saturn', 'Effect': 'Bullish', 'Description': 'Structured thinking, practical communication'},
-            {'Time': '15:20', 'Aspect': 'Sun Opposition Neptune', 'Effect': 'Bearish', 'Description': 'Confusion between reality and illusion, deception'}
         ]
     else:
         # For other dates, generate random data
@@ -1257,16 +1282,23 @@ with tab1:
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
 selected_month = st.session_state.selected_date.month
+
 # Generate moon phases for selected month
 moon_phases = generate_moon_phases(selected_year, selected_month)
+
 # Generate moon transits for selected month
 moon_transits = generate_moon_transits(selected_year, selected_month)
 moon_transit_df = pd.DataFrame(moon_transits)
 moon_transit_df['Date'] = pd.to_datetime(moon_transit_df['Date'])
+
 # Generate planetary aspects for selected month
 planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
-# Get retrograde planets for selected date
-retrograde_planets = get_retrograde_planets(datetime.combine(st.session_state.selected_date, st.session_state.selected_time))
+
+# Get retrograde planets for selected date (now uses live calculation)
+retrograde_planets = get_retrograde_planets_calculated(
+    datetime.combine(st.session_state.selected_date, st.session_state.selected_time),
+    st.session_state.selected_city
+)
 
 # Create planetary details dictionary with dynamic data
 planetary_details = {
@@ -1286,7 +1318,7 @@ planetary_details = {
         {'name': 'Mars Retrograde', 'start': '2024-12-06', 'end': '2025-02-23', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
         {'name': 'Mars Retrograde', 'start': '2025-07-11', 'end': '2025-09-29', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
         {'name': 'Jupiter Retrograde', 'start': '2025-11-04', 'end': '2026-03-14', 'effect': 'Bearish', 'description': 'Growth slowdown, reassessment of beliefs'},
-        {'name': 'Saturn Retrograde', 'start': '2025-06-29', 'end': '2025-11-15', 'effect': 'Bearish', 'description': 'Restructuring delays, karmic lessons'},
+        {'name': 'Saturn Retrograde', 'start': '2025-06-29', 'end': '2025-11-15', 'effect': 'Bearish', 'Description': 'Restructuring delays, karmic lessons'},
         {'name': 'Uranus Retrograde', 'start': '2025-08-29', 'end': '2026-01-27', 'effect': 'Bearish', 'description': 'Rebellion against change, technological disruptions'},
         {'name': 'Neptune Retrograde', 'start': '2025-07-02', 'end': '2025-12-08', 'effect': 'Bearish', 'description': 'Uncertainty, deception, spiritual confusion'},
         {'name': 'Pluto Retrograde', 'start': '2025-05-02', 'end': '2025-10-11', 'effect': 'Bullish', 'description': 'Transformational opportunities, deep changes'}
