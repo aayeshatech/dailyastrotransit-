@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, date
 import calendar
 import random
 import math
+import pytz
 
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
@@ -18,6 +19,8 @@ st.markdown("---")
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
     st.session_state.selected_date = date(2025, 8, 2)  # Changed default to August 2, 2025
+if 'selected_city' not in st.session_state:
+    st.session_state.selected_city = "Mumbai, India"
 if 'planetary_options' not in st.session_state:
     st.session_state.planetary_options = {
         'Planetary Transit': True,
@@ -511,6 +514,620 @@ def create_birth_chart(planetary_positions):
     
     return fig
 
+# Function to get all planetary transits for a year
+def get_all_planetary_transits(year):
+    transits = []
+    
+    # Mercury transits
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Capricorn',
+        'To': 'Aquarius',
+        'Start': f'{year}-01-25',
+        'End': f'{year}-02-13',
+        'Effect': 'Bullish',
+        'Description': 'Clear communication, intellectual growth'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Aquarius',
+        'To': 'Pisces',
+        'Start': f'{year}-02-13',
+        'End': f'{year}-03-01',
+        'Effect': 'Bullish',
+        'Description': 'Intuitive thinking, creative expression'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aries',
+        'Start': f'{year}-03-01',
+        'End': f'{year}-03-16',
+        'Effect': 'Bullish',
+        'Description': 'Assertive communication, new ideas'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Aries',
+        'To': 'Taurus',
+        'Start': f'{year}-03-16',
+        'End': f'{year}-05-03',
+        'Effect': 'Bullish',
+        'Description': 'Practical thinking, financial focus'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Retrograde',
+        'From': 'Taurus',
+        'To': 'Aries',
+        'Start': f'{year}-05-18',
+        'End': f'{year}-06-11',
+        'Effect': 'Bearish',
+        'Description': 'Communication issues, tech problems'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Aries',
+        'To': 'Taurus',
+        'Start': f'{year}-06-11',
+        'End': f'{year}-06-26',
+        'Effect': 'Bullish',
+        'Description': 'Clear thinking, practical decisions'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Taurus',
+        'To': 'Gemini',
+        'Start': f'{year}-06-26',
+        'End': f'{year}-07-10',
+        'Effect': 'Bullish',
+        'Description': 'Social communication, networking'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Gemini',
+        'To': 'Cancer',
+        'Start': f'{year}-07-10',
+        'End': f'{year}-07-25',
+        'Effect': 'Bullish',
+        'Description': 'Emotional communication, family focus'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Cancer',
+        'To': 'Leo',
+        'Start': f'{year}-07-25',
+        'End': f'{year}-09-09',
+        'Effect': 'Bullish',
+        'Description': 'Creative expression, leadership'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Retrograde',
+        'From': 'Leo',
+        'To': 'Cancer',
+        'Start': f'{year}-09-09',
+        'End': f'{year}-10-02',
+        'Effect': 'Bearish',
+        'Description': 'Communication breakdowns, tech issues'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Cancer',
+        'To': 'Leo',
+        'Start': f'{year}-10-02',
+        'End': f'{year}-10-17',
+        'Effect': 'Bullish',
+        'Description': 'Clear communication, emotional intelligence'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Leo',
+        'To': 'Virgo',
+        'Start': f'{year}-10-17',
+        'End': f'{year}-11-01',
+        'Effect': 'Bullish',
+        'Description': 'Analytical thinking, attention to detail'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Libra',
+        'Start': f'{year}-11-01',
+        'End': f'{year}-11-19',
+        'Effect': 'Bullish',
+        'Description': 'Diplomatic communication, social harmony'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Libra',
+        'To': 'Scorpio',
+        'Start': f'{year}-11-19',
+        'End': f'{year}-12-07',
+        'Effect': 'Bullish',
+        'Description': 'Deep communication, investigation'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Scorpio',
+        'To': 'Sagittarius',
+        'Start': f'{year}-12-07',
+        'End': f'{year}-12-26',
+        'Effect': 'Bullish',
+        'Description': 'Philosophical thinking, big ideas'
+    })
+    
+    # Venus transits
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Capricorn',
+        'To': 'Aquarius',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-01-27',
+        'Effect': 'Bullish',
+        'Description': 'Social progress, humanitarian values'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Aquarius',
+        'To': 'Pisces',
+        'Start': f'{year}-01-27',
+        'End': f'{year}-02-20',
+        'Effect': 'Bullish',
+        'Description': 'Romantic idealism, artistic inspiration'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aries',
+        'Start': f'{year}-02-20',
+        'End': f'{year}-03-16',
+        'Effect': 'Bullish',
+        'Description': 'Passionate relationships, bold actions'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Retrograde',
+        'From': 'Aries',
+        'To': 'Pisces',
+        'Start': f'{year}-03-22',
+        'End': f'{year}-04-30',
+        'Effect': 'Bearish',
+        'Description': 'Relationship issues, financial reevaluation'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aries',
+        'Start': f'{year}-04-30',
+        'End': f'{year}-05-23',
+        'Effect': 'Bullish',
+        'Description': 'Renewed passion, relationship clarity'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Aries',
+        'To': 'Taurus',
+        'Start': f'{year}-05-23',
+        'End': f'{year}-06-17',
+        'Effect': 'Bullish',
+        'Description': 'Stable relationships, financial growth'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Taurus',
+        'To': 'Gemini',
+        'Start': f'{year}-06-17',
+        'End': f'{year}-07-11',
+        'Effect': 'Bullish',
+        'Description': 'Social connections, communication in love'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Gemini',
+        'To': 'Cancer',
+        'Start': f'{year}-07-11',
+        'End': f'{year}-08-05',
+        'Effect': 'Bullish',
+        'Description': 'Emotional bonds, nurturing relationships'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Cancer',
+        'To': 'Leo',
+        'Start': f'{year}-08-05',
+        'End': f'{year}-08-29',
+        'Effect': 'Bullish',
+        'Description': 'Romantic expression, creative love'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Leo',
+        'To': 'Virgo',
+        'Start': f'{year}-08-29',
+        'End': f'{year}-09-22',
+        'Effect': 'Bullish',
+        'Description': 'Practical love, attention to detail'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Libra',
+        'Start': f'{year}-09-22',
+        'End': f'{year}-10-17',
+        'Effect': 'Bullish',
+        'Description': 'Harmonious relationships, social grace'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Libra',
+        'To': 'Scorpio',
+        'Start': f'{year}-10-17',
+        'End': f'{year}-11-11',
+        'Effect': 'Bullish',
+        'Description': 'Deep connections, passionate love'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Scorpio',
+        'To': 'Sagittarius',
+        'Start': f'{year}-11-11',
+        'End': f'{year}-12-06',
+        'Effect': 'Bullish',
+        'Description': 'Adventurous relationships, philosophical love'
+    })
+    transits.append({
+        'Planet': 'Venus',
+        'Event': 'Direct',
+        'From': 'Sagittarius',
+        'To': 'Capricorn',
+        'Start': f'{year}-12-06',
+        'End': f'{year}-12-31',
+        'Effect': 'Bullish',
+        'Description': 'Committed relationships, long-term planning'
+    })
+    
+    # Mars transits
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Retrograde',
+        'From': 'Cancer',
+        'To': 'Gemini',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-02-23',
+        'Effect': 'Bearish',
+        'Description': 'Energy drain, conflicts, delays'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Gemini',
+        'To': 'Cancer',
+        'Start': f'{year}-02-23',
+        'End': f'{year}-04-04',
+        'Effect': 'Bullish',
+        'Description': 'Renewed energy, communication drive'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Cancer',
+        'To': 'Leo',
+        'Start': f'{year}-04-04',
+        'End': f'{year}-05-15',
+        'Effect': 'Bullish',
+        'Description': 'Confident action, leadership energy'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Leo',
+        'To': 'Virgo',
+        'Start': f'{year}-05-15',
+        'End': f'{year}-06-27',
+        'Effect': 'Bullish',
+        'Description': 'Detailed action, service-oriented energy'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Libra',
+        'Start': f'{year}-06-27',
+        'End': f'{year}-08-08',
+        'Effect': 'Bullish',
+        'Description': 'Diplomatic action, relationship focus'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Retrograde',
+        'From': 'Libra',
+        'To': 'Virgo',
+        'Start': f'{year}-07-11',
+        'End': f'{year}-09-29',
+        'Effect': 'Bearish',
+        'Description': 'Energy drain, conflicts, delays in action'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Libra',
+        'Start': f'{year}-09-29',
+        'End': f'{year}-11-10',
+        'Effect': 'Bullish',
+        'Description': 'Renewed energy, balanced action'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Libra',
+        'To': 'Scorpio',
+        'Start': f'{year}-11-10',
+        'End': f'{year}-12-20',
+        'Effect': 'Bullish',
+        'Description': 'Intense action, transformative energy'
+    })
+    transits.append({
+        'Planet': 'Mars',
+        'Event': 'Direct',
+        'From': 'Scorpio',
+        'To': 'Sagittarius',
+        'Start': f'{year}-12-20',
+        'End': f'{year}-12-31',
+        'Effect': 'Bullish',
+        'Description': 'Adventurous action, philosophical drive'
+    })
+    
+    # Jupiter transits
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Taurus',
+        'To': 'Gemini',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-05-25',
+        'Effect': 'Bullish',
+        'Description': 'Growth in communication, learning expansion'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Gemini',
+        'To': 'Cancer',
+        'Start': f'{year}-05-25',
+        'End': f'{year}-06-01',
+        'Effect': 'Bullish',
+        'Description': 'Growth in emotional security, home expansion'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Cancer',
+        'To': 'Leo',
+        'Start': f'{year}-06-01',
+        'End': f'{year}-07-13',
+        'Effect': 'Bullish',
+        'Description': 'Growth in creativity, self-expression'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Leo',
+        'To': 'Virgo',
+        'Start': f'{year}-07-13',
+        'End': f'{year}-08-27',
+        'Effect': 'Bullish',
+        'Description': 'Growth in service, health improvement'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Libra',
+        'Start': f'{year}-08-27',
+        'End': f'{year}-10-09',
+        'Effect': 'Bullish',
+        'Description': 'Growth in relationships, social harmony'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Direct',
+        'From': 'Libra',
+        'To': 'Scorpio',
+        'Start': f'{year}-10-09',
+        'End': f'{year}-11-20',
+        'Effect': 'Bullish',
+        'Description': 'Growth in depth, transformation'
+    })
+    transits.append({
+        'Planet': 'Jupiter',
+        'Event': 'Retrograde',
+        'From': 'Scorpio',
+        'To': 'Libra',
+        'Start': f'{year}-11-04',
+        'End': f'{year}-12-31',
+        'Effect': 'Bearish',
+        'Description': 'Growth slowdown, reassessment of relationships'
+    })
+    
+    # Saturn transits
+    transits.append({
+        'Planet': 'Saturn',
+        'Event': 'Direct',
+        'From': 'Aquarius',
+        'To': 'Pisces',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-03-29',
+        'Effect': 'Bearish',
+        'Description': 'Structural changes, spiritual challenges'
+    })
+    transits.append({
+        'Planet': 'Saturn',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aries',
+        'Start': f'{year}-03-29',
+        'End': f'{year}-05-24',
+        'Effect': 'Bearish',
+        'Description': 'Disciplined action, new structures'
+    })
+    transits.append({
+        'Planet': 'Saturn',
+        'Event': 'Direct',
+        'From': 'Aries',
+        'To': 'Taurus',
+        'Start': f'{year}-05-24',
+        'End': f'{year}-06-29',
+        'Effect': 'Bearish',
+        'Description': 'Practical discipline, financial stability'
+    })
+    transits.append({
+        'Planet': 'Saturn',
+        'Event': 'Retrograde',
+        'From': 'Taurus',
+        'To': 'Aries',
+        'Start': f'{year}-06-29',
+        'End': f'{year}-11-15',
+        'Effect': 'Bearish',
+        'Description': 'Restructuring delays, karmic lessons'
+    })
+    transits.append({
+        'Planet': 'Saturn',
+        'Event': 'Direct',
+        'From': 'Aries',
+        'To': 'Taurus',
+        'Start': f'{year}-11-15',
+        'End': f'{year}-12-31',
+        'Effect': 'Bearish',
+        'Description': 'Renewed discipline, practical structures'
+    })
+    
+    # Rahu transits
+    transits.append({
+        'Planet': 'Rahu',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aquarius',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-03-29',
+        'Effect': 'Bearish',
+        'Description': 'Material desires, ambition'
+    })
+    transits.append({
+        'Planet': 'Rahu',
+        'Event': 'Direct',
+        'From': 'Aquarius',
+        'To': 'Pisces',
+        'Start': f'{year}-03-29',
+        'End': f'{year}-12-31',
+        'Effect': 'Bearish',
+        'Description': 'Spiritual confusion, illusion'
+    })
+    
+    # Ketu transits
+    transits.append({
+        'Planet': 'Ketu',
+        'Event': 'Direct',
+        'From': 'Virgo',
+        'To': 'Leo',
+        'Start': f'{year}-01-01',
+        'End': f'{year}-03-29',
+        'Effect': 'Bearish',
+        'Description': 'Spiritual detachment, liberation'
+    })
+    transits.append({
+        'Planet': 'Ketu',
+        'Event': 'Direct',
+        'From': 'Leo',
+        'To': 'Virgo',
+        'Start': f'{year}-03-29',
+        'End': f'{year}-12-31',
+        'Effect': 'Bearish',
+        'Description': 'Service, healing, perfection'
+    })
+    
+    return transits
+
+# Function to display upcoming transits in box table format
+def display_upcoming_transits(year, month):
+    # Get all transits for the year
+    all_transits = get_all_planetary_transits(year)
+    
+    # Group transits by month
+    monthly_transits = {i: [] for i in range(1, 13)}
+    
+    for transit in all_transits:
+        start_date = datetime.strptime(transit['Start'], '%Y-%m-%d')
+        if start_date.year == year:
+            monthly_transits[start_date.month].append(transit)
+    
+    # Create a grid of 12 boxes (one for each month)
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 
+              'July', 'August', 'September', 'October', 'November', 'December']
+    
+    # Create a 3x4 grid
+    for i in range(0, 12, 3):
+        cols = st.columns(3)
+        for j in range(3):
+            month_idx = i + j
+            month_name = months[month_idx]
+            month_transits = monthly_transits[month_idx + 1]  # +1 because months are 1-indexed
+            
+            with cols[j]:
+                # Highlight the selected month
+                if month_idx + 1 == month:
+                    st.markdown(f"#### :blue[{month_name} {year}]")
+                else:
+                    st.markdown(f"#### {month_name} {year}")
+                
+                if month_transits:
+                    for transit in month_transits:
+                        # Format the date range
+                        start_date = datetime.strptime(transit['Start'], '%Y-%m-%d').strftime('%b %d')
+                        end_date = datetime.strptime(transit['End'], '%Y-%m-%d').strftime('%b %d')
+                        
+                        # Create a box for each transit
+                        with st.container():
+                            st.markdown(f"""
+                            <div style="background-color: {'#d4edda' if transit['Effect'] == 'Bullish' else '#f8d7da'}; 
+                                        padding: 10px; 
+                                        border-radius: 5px; 
+                                        margin-bottom: 10px;">
+                                <b>{transit['Planet']} {transit['Event']}</b><br>
+                                {transit['From']} → {transit['To']}<br>
+                                {start_date} - {end_date}<br>
+                                <i>{transit['Description']}</i>
+                            </div>
+                            """, unsafe_allow_html=True)
+                else:
+                    st.info("No major transits this month")
+
 # Tab 1: Input Date
 with tab1:
     st.header("Select Date for Report")
@@ -528,10 +1145,17 @@ with tab1:
         selected_date = date(selected_year, selected_month, selected_day)
         st.session_state.selected_date = selected_date
         
+        # City selection
+        cities = ["Mumbai, India", "Delhi, India", "Bangalore, India", "Kolkata, India", "Chennai, India", 
+                 "New York, USA", "London, UK", "Tokyo, Japan", "Sydney, Australia", "Dubai, UAE"]
+        selected_city = st.selectbox("Select City", cities, index=0)
+        st.session_state.selected_city = selected_city
+        
         st.markdown(f"**Selected Date:** {selected_date.strftime('%Y-%m-%d')}")
+        st.markdown(f"**Location:** {selected_city}")
         
         if st.button("Generate Report"):
-            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')}")
+            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')} in {selected_city}")
     
     # Add birth chart visualization
     st.markdown("---")
@@ -548,6 +1172,14 @@ with tab1:
     st.markdown("### Planetary Positions")
     positions_df = pd.DataFrame(planetary_positions)
     st.dataframe(positions_df, use_container_width=True)
+    
+    # Add upcoming transits section
+    st.markdown("---")
+    st.header(f"Upcoming Planetary Transits {selected_year}")
+    st.markdown(f"Showing transits for {selected_city}")
+    
+    # Display upcoming transits in box table format
+    display_upcoming_transits(selected_year, selected_month)
 
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
