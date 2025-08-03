@@ -29,7 +29,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["Input Date", "Planetary Report", "Planetary E
 # Sample data for planetary events
 planetary_data = {
     'Date': pd.date_range(start='2025-08-01', end='2025-08-31'),
-    'Mercury Retro': [False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, False, False, False, False, False],
+    'Mercury Retro': [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
     'Moon Phase': ['New Moon', 'Waxing Crescent', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'New Moon'],
     'Moon Transit': ['Cancer', 'Leo', 'Leo', 'Virgo', 'Virgo', 'Libra', 'Libra', 'Scorpio', 'Scorpio', 'Sagittarius', 'Sagittarius', 'Capricorn', 'Capricorn', 'Aquarius', 'Aquarius', 'Pisces', 'Pisces', 'Aries', 'Aries', 'Taurus', 'Taurus', 'Gemini', 'Gemini', 'Cancer', 'Cancer', 'Leo', 'Leo', 'Virgo', 'Virgo', 'Libra', 'Libra'],
     'Jupiter Trine Saturn': [True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
@@ -58,11 +58,17 @@ planetary_details = {
         {'name': 'Mercury Conjunct Venus', 'start': '2025-08-19', 'end': '2025-08-19', 'effect': 'Bullish', 'description': 'Harmonious communication, financial discussions'}
     ],
     'Planetary Retrograde': [
-        {'name': 'Mercury Retrograde', 'start': '2025-08-01', 'end': '2025-08-25', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Mercury Retrograde', 'start': '2025-01-01', 'end': '2025-01-25', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Mercury Retrograde', 'start': '2025-05-18', 'end': '2025-06-11', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Mercury Retrograde', 'start': '2025-09-09', 'end': '2025-10-02', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Venus Retrograde', 'start': '2025-03-22', 'end': '2025-04-30', 'effect': 'Bearish', 'description': 'Relationship issues, financial reevaluation'},
+        {'name': 'Mars Retrograde', 'start': '2024-12-06', 'end': '2025-02-23', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
+        {'name': 'Mars Retrograde', 'start': '2025-07-11', 'end': '2025-09-29', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
+        {'name': 'Jupiter Retrograde', 'start': '2025-11-04', 'end': '2026-03-14', 'effect': 'Bearish', 'description': 'Growth slowdown, reassessment of beliefs'},
         {'name': 'Saturn Retrograde', 'start': '2025-06-29', 'end': '2025-11-15', 'effect': 'Bearish', 'description': 'Restructuring delays, karmic lessons'},
-        {'name': 'Neptune Retrograde', 'start': '2025-06-30', 'end': '2025-12-07', 'effect': 'Bearish', 'description': 'Uncertainty, deception, spiritual confusion'},
-        {'name': 'Pluto Retrograde', 'start': '2025-05-02', 'end': '2025-10-11', 'effect': 'Bullish', 'description': 'Transformational opportunities, deep changes'},
-        {'name': 'Jupiter Retrograde', 'start': '2025-10-09', 'end': '2026-02-04', 'effect': 'Bearish', 'description': 'Reassessment of beliefs, growth slowdown'}
+        {'name': 'Uranus Retrograde', 'start': '2025-08-29', 'end': '2026-01-27', 'effect': 'Bearish', 'description': 'Rebellion against change, technological disruptions'},
+        {'name': 'Neptune Retrograde', 'start': '2025-07-02', 'end': '2025-12-08', 'effect': 'Bearish', 'description': 'Uncertainty, deception, spiritual confusion'},
+        {'name': 'Pluto Retrograde', 'start': '2025-05-02', 'end': '2025-10-11', 'effect': 'Bullish', 'description': 'Transformational opportunities, deep changes'}
     ],
     'Moon Phases': [
         {'name': 'New Moon', 'date': '2025-08-01', 'effect': 'Bullish', 'description': 'New beginnings, fresh momentum, ideal for starting new projects'},
@@ -116,6 +122,41 @@ planetary_effects = {
         'Assets': ['Defensive stocks', 'Safe-haven assets'],
         'Commodities': ['Gold', 'Silver'],
         'Effect': 'Bearish - Emotional peaks, profit-taking, increased volatility'
+    },
+    'Mars Retrograde': {
+        'Sectors': ['Energy', 'Defense', 'Automotive'],
+        'Indices': ['Russell 2000', 'Volatility Index'],
+        'Assets': ['Commodity currencies', 'Small-cap stocks'],
+        'Commodities': ['Oil', 'Steel'],
+        'Effect': 'Bearish - Energy drain, conflicts, delays in action'
+    },
+    'Saturn Retrograde': {
+        'Sectors': ['Banking', 'Government', 'Infrastructure'],
+        'Indices': ['S&P 500', 'Dow Jones'],
+        'Assets': ['Government bonds', 'Blue-chip stocks'],
+        'Commodities': ['Gold', 'Industrial metals'],
+        'Effect': 'Bearish - Restructuring delays, karmic lessons'
+    },
+    'Uranus Retrograde': {
+        'Sectors': ['Technology', 'Aerospace', 'Renewable Energy'],
+        'Indices': ['NASDAQ', 'Clean Energy Index'],
+        'Assets': ['Tech stocks', 'Growth stocks'],
+        'Commodities': ['Uranium', 'Rare earth elements'],
+        'Effect': 'Bearish - Rebellion against change, technological disruptions'
+    },
+    'Neptune Retrograde': {
+        'Sectors': ['Pharmaceuticals', 'Oil & Gas', 'Media'],
+        'Indices': ['Healthcare Index', 'Energy Index'],
+        'Assets': ['Pharma stocks', 'Energy stocks'],
+        'Commodities': ['Oil', 'Natural gas'],
+        'Effect': 'Bearish - Uncertainty, deception, spiritual confusion'
+    },
+    'Pluto Retrograde': {
+        'Sectors': ['Finance', 'Mining', 'Psychology'],
+        'Indices': ['Financial Index', 'Gold Index'],
+        'Assets': ['Financial stocks', 'Gold'],
+        'Commodities': ['Gold', 'Platinum'],
+        'Effect': 'Bullish - Transformational opportunities, deep changes'
     }
 }
 
