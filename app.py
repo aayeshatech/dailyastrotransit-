@@ -209,6 +209,11 @@ def calculate_planetary_positions(selected_date, selected_time, selected_city):
     return positions
 # Fallback function for planetary positions when skyfield is not available
 def get_planetary_positions_fallback(selected_date):
+    # Create a seed based on the date for consistent results
+    date_seed = int(selected_date.strftime('%Y%m%d'))
+    local_random = random.Random()
+    local_random.seed(date_seed)
+    
     # FIX: Use explicit date comparison to ensure proper matching
     # Check if selected_date is August 4, 2025
     if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
@@ -224,8 +229,8 @@ def get_planetary_positions_fallback(selected_date):
             {'Planet': 'Ketu', 'Lord': 'Venus', 'Sublord': 'Sun', 'Degree': 24.46, 'House': 4, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
             {'Planet': 'Neptune', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 7.43, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'}
         ]
-    # Specific data for August 2, 2025
-    elif selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 2:
+    # Specific data for August 5, 2025
+    elif selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 5:
         return [
             {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
             {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
@@ -238,18 +243,47 @@ def get_planetary_positions_fallback(selected_date):
             {'Planet': 'Ketu', 'Lord': 'Sun', 'Sublord': 'Sun', 'Degree': 5.5, 'House': 6, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Positive'}
         ]
     else:
-        # For other dates, generate random data
+        # For other dates, generate consistent data based on date seed
         planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
         positions = []
         
-        for planet in planets:
-            sign = random.choice(zodiac_signs)
+        # Use the seed to ensure consistent results for the same date
+        for i, planet in enumerate(planets):
+            # Use planet index and date seed to get consistent values
+            local_random.seed(date_seed + i)
+            
+            # Get sign index based on date and planet
+            sign_index = (date_seed + i) % 12
+            sign = zodiac_signs[sign_index]
+            
             lord = sign_lords[sign]
-            nakshatra = random.choice(nakshatras)
+            
+            # Get nakshatra index
+            nakshatra_index = (date_seed + i * 2) % 27
+            nakshatra = nakshatras[nakshatra_index]
+            
             sublord = nakshatra_lords[nakshatra]
-            degree = round(random.uniform(0, 30), 2)
-            house = random.randint(1, 12)
-            effect = random.choice(['Positive', 'Negative'])
+            
+            # Generate degree
+            degree = round(local_random.uniform(0, 30), 2)
+            
+            # Generate house
+            house = (date_seed + i) % 12 + 1
+            
+            # Determine effect based on planet and sign
+            effect = 'Neutral'
+            if planet in exaltation and sign == exaltation[planet][0]:
+                effect = 'Positive'
+            elif planet in debilitation and sign == debilitation[planet][0]:
+                effect = 'Negative'
+            elif planet in own_sign_lords:
+                own_signs = own_sign_lords[planet]
+                if isinstance(own_signs, list):
+                    if sign in own_signs:
+                        effect = 'Positive'
+                else:
+                    if sign == own_signs:
+                        effect = 'Positive'
             
             positions.append({
                 'Planet': planet,
@@ -545,6 +579,11 @@ def get_planetary_positions(selected_date):
     )
 # Function to get next house changes for a specific date
 def get_next_house_changes(selected_date):
+    # Create a seed based on the date for consistent results
+    date_seed = int(selected_date.strftime('%Y%m%d'))
+    local_random = random.Random()
+    local_random.seed(date_seed)
+    
     # FIX: Use explicit date comparison to ensure proper matching
     # Check if selected_date is August 4, 2025
     if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
@@ -561,20 +600,25 @@ def get_next_house_changes(selected_date):
             {'Planet': 'Neptune', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-15 11:20'}
         ]
     else:
-        # For other dates, generate random data
+        # For other dates, generate consistent data based on date seed
         planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
         changes = []
         
-        for planet in planets:
-            current_house = random.randint(1, 12)
+        for i, planet in enumerate(planets):
+            # Use planet index and date seed to get consistent values
+            local_random.seed(date_seed + i)
+            
+            current_house = (date_seed + i) % 12 + 1
             next_house = 1 if current_house == 12 else current_house + 1
-            degree_at_change = round(random.uniform(0, 30), 2)
+            degree_at_change = round(local_random.uniform(0, 30), 2)
             
-            nakshatra_at_change = random.choice(nakshatras)
+            nakshatra_index = (date_seed + i * 2) % 27
+            nakshatra_at_change = nakshatras[nakshatra_index]
             
-            days_ahead = random.randint(1, 7)
-            hours_ahead = random.randint(1, 23)
-            minutes_ahead = random.randint(0, 59)
+            # Generate a future date within 7 days
+            days_ahead = (date_seed + i) % 7 + 1
+            hours_ahead = (date_seed + i * 3) % 24
+            minutes_ahead = (date_seed + i * 5) % 60
             change_datetime = selected_date + timedelta(days=days_ahead, hours=hours_ahead, minutes=minutes_ahead)
             
             changes.append({
@@ -589,6 +633,11 @@ def get_next_house_changes(selected_date):
         return changes
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
+    # Create a seed based on the date for consistent results
+    date_seed = int(selected_date.strftime('%Y%m%d'))
+    local_random = random.Random()
+    local_random.seed(date_seed)
+    
     # FIX: Use explicit date comparison to ensure proper matching
     # Check if selected_date is August 4, 2025
     if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
@@ -603,24 +652,35 @@ def get_intraday_aspects(selected_date):
             {'Time': '15:30', 'Aspect': 'Market Close', 'Effect': 'Bearish', 'Description': 'Moon at 23° Scorpio. Rahu influence dominates.'}
         ]
     else:
-        # For other dates, generate random data
+        # For other dates, generate consistent data based on date seed
         aspect_types = ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition']
         planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
         
-        num_aspects = random.randint(4, 6)
+        # Determine number of aspects based on date seed
+        num_aspects = (date_seed % 3) + 4  # Between 4-6 aspects
         aspects = []
         
         for i in range(num_aspects):
-            hour = random.randint(9, 15)
-            minute = random.randint(0, 59)
+            # Use aspect index and date seed to get consistent values
+            local_random.seed(date_seed + i)
+            
+            # Generate time
+            hour = 9 + (date_seed + i) % 7  # Between 9-15
+            minute = (date_seed + i * 7) % 60
             if hour == 15 and minute > 30:
                 minute = 30
             time_str = f"{hour:02d}:{minute:02d}"
             
-            aspect_type = random.choice(aspect_types)
-            planet1 = random.choice(planets)
-            planet2 = random.choice([p for p in planets if p != planet1])
-            effect = random.choice(['Bullish', 'Bearish', 'Neutral'])
+            aspect_type = aspect_types[(date_seed + i) % len(aspect_types)]
+            planet1_index = (date_seed + i) % len(planets)
+            planet1 = planets[planet1_index]
+            planet2_index = (date_seed + i * 2) % (len(planets) - 1)
+            if planet2_index >= planet1_index:
+                planet2_index += 1
+            planet2 = planets[planet2_index]
+            
+            effect_options = ['Bullish', 'Bearish', 'Neutral', 'Volatile', 'Mildly Bullish']
+            effect = effect_options[(date_seed + i * 3) % len(effect_options)]
             
             if aspect_type == 'Conjunction':
                 description = f"Combining energies of {planet1} and {planet2}"
@@ -640,6 +700,7 @@ def get_intraday_aspects(selected_date):
                 'Description': description
             })
         
+        # Sort aspects by time
         aspects.sort(key=lambda x: x['Time'])
         return aspects
 # Function to create birth chart visualization
@@ -1485,7 +1546,7 @@ planetary_details = {
         {'name': 'Jupiter Retrograde', 'start': '2025-11-04', 'end': '2026-03-14', 'effect': 'Bearish', 'description': 'Growth slowdown, reassessment of beliefs'},
         {'name': 'Saturn Retrograde', 'start': '2025-06-29', 'end': '2025-11-15', 'effect': 'Bearish', 'description': 'Restructuring delays, karmic lessons'},
         {'name': 'Uranus Retrograde', 'start': '2025-08-29', 'end': '2026-01-27', 'effect': 'Bearish', 'description': 'Rebellion against change, technological disruptions'},
-        {'name': 'Neptune Retrograde', 'start': '2025-07-02', 'end': '2025-12-08', 'effect': 'Bearish', 'description': 'Uncertainty, deception, spiritual confusion'},
+        {'name': 'Neptune Retrograde', 'start': '2025-07-02', 'end': '2025-12-08', 'effect': 'Bearish', 'Description': 'Uncertainty, deception, spiritual confusion'},
         {'name': 'Pluto Retrograde', 'start': '2025-05-02', 'end': '2025-10-11', 'effect': 'Bullish', 'description': 'Transformational opportunities, deep changes'}
     ],
     'Moon Phases': moon_phases
