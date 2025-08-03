@@ -1820,10 +1820,13 @@ with tab4:
         
         intraday_date_str = intraday_date.strftime('%Y-%m-%d')
         
-        if intraday_date_str in intraday_moon_aspects:
+        # FIX: Use get_intraday_aspects function to generate data for any date
+        intraday_aspects_data = get_intraday_aspects(intraday_date)
+        
+        if intraday_aspects_data:
             st.markdown(f"### Moon Aspects for {intraday_date_str}")
             
-            aspects_df = pd.DataFrame(intraday_moon_aspects[intraday_date_str])
+            aspects_df = pd.DataFrame(intraday_aspects_data)
             st.dataframe(aspects_df, use_container_width=True)
             
             # Create a timeline chart for intraday aspects
@@ -1833,18 +1836,18 @@ with tab4:
             
             for _, aspect in aspects_df.iterrows():
                 fig.add_trace(go.Scatter(
-                    x=[aspect['time']],
-                    y=[aspect['aspect']],
+                    x=[aspect['Time']],
+                    y=[aspect['Aspect']],
                     mode='markers',
                     marker=dict(
-                        color=colors.get(aspect['effect'], 'blue'),
+                        color=colors.get(aspect['Effect'], 'blue'),
                         size=20,
                         symbol='diamond',
                         line=dict(width=1, color='black')
                     ),
-                    text=f"{aspect['description']}<br>Effect: {aspect['effect']}",
+                    text=f"{aspect['Description']}<br>Effect: {aspect['Effect']}",
                     hovertemplate='<b>%{y}</b><br>Time: %{x}<br>%{text}<extra></extra>',
-                    name=aspect['aspect']
+                    name=aspect['Aspect']
                 ))
             
             fig.update_layout(
