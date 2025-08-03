@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
@@ -14,7 +14,7 @@ st.markdown("---")
 
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = datetime(2025, 8, 4)
+    st.session_state.selected_date = date(2025, 8, 4)
 if 'planetary_options' not in st.session_state:
     st.session_state.planetary_options = {
         'Planetary Transit': True,
@@ -144,8 +144,8 @@ with tab1:
         selected_date = st.date_input(
             "Select a date:",
             value=st.session_state.selected_date,
-            min_value=datetime(2025, 8, 1),
-            max_value=datetime(2025, 8, 31),
+            min_value=date(2025, 8, 1),
+            max_value=date(2025, 8, 31),
             format="YYYY-MM-DD"
         )
         st.session_state.selected_date = selected_date
@@ -202,31 +202,34 @@ with tab3:
     # Find active events for the selected date
     active_events = []
     
+    # Convert selected_date to datetime for comparison
+    selected_datetime = datetime.combine(st.session_state.selected_date, datetime.min.time())
+    
     # Check planetary transits
     for transit in planetary_details['Planetary Transit']:
         start_date = datetime.strptime(transit['start'], '%Y-%m-%d')
         end_date = datetime.strptime(transit['end'], '%Y-%m-%d')
-        if start_date <= st.session_state.selected_date <= end_date:
+        if start_date <= selected_datetime <= end_date:
             active_events.append(transit['name'])
     
     # Check planetary aspects
     for aspect in planetary_details['Planetary Aspect']:
         start_date = datetime.strptime(aspect['start'], '%Y-%m-%d')
         end_date = datetime.strptime(aspect['end'], '%Y-%m-%d')
-        if start_date <= st.session_state.selected_date <= end_date:
+        if start_date <= selected_datetime <= end_date:
             active_events.append(aspect['name'])
     
     # Check planetary retrogrades
     for retrograde in planetary_details['Planetary Retrograde']:
         start_date = datetime.strptime(retrograde['start'], '%Y-%m-%d')
         end_date = datetime.strptime(retrograde['end'], '%Y-%m-%d')
-        if start_date <= st.session_state.selected_date <= end_date:
+        if start_date <= selected_datetime <= end_date:
             active_events.append(retrograde['name'])
     
     # Check moon phases
     for moon in planetary_details['Moon Phases']:
         moon_date = datetime.strptime(moon['date'], '%Y-%m-%d')
-        if moon_date.date() == st.session_state.selected_date.date():
+        if moon_date.date() == st.session_state.selected_date:
             active_events.append(moon['name'])
     
     if active_events:
@@ -380,8 +383,8 @@ with tab4:
         intraday_date = st.date_input(
             "Select date for intraday moon aspects:",
             value=st.session_state.selected_date,
-            min_value=datetime(2025, 8, 1),
-            max_value=datetime(2025, 8, 5),
+            min_value=date(2025, 8, 1),
+            max_value=date(2025, 8, 5),
             format="YYYY-MM-DD",
             key="intraday_date"
         )
