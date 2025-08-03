@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 import calendar
 import random
 import math
@@ -19,6 +19,8 @@ st.markdown("---")
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
     st.session_state.selected_date = date(2025, 8, 4)  # Changed default to August 4, 2025
+if 'selected_time' not in st.session_state:
+    st.session_state.selected_time = time(9, 15)  # Default time 9:15 AM
 if 'selected_city' not in st.session_state:
     st.session_state.selected_city = "Mumbai, India"
 if 'planetary_options' not in st.session_state:
@@ -443,7 +445,7 @@ def get_intraday_aspects(selected_date):
         return aspects
 
 # Function to create birth chart visualization
-def create_birth_chart(planetary_positions):
+def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     # Define zodiac signs and their degrees
     zodiac_signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
                     'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
@@ -548,7 +550,7 @@ def create_birth_chart(planetary_positions):
         ),
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        title="Birth Chart / Natal Chart",
+        title=title,
         title_x=0.5,
         height=600
     )
@@ -1208,6 +1210,10 @@ with tab1:
         selected_date = date(selected_year, selected_month, selected_day)
         st.session_state.selected_date = selected_date
         
+        # Add time selection
+        selected_time = st.time_input("Select Time", value=st.session_state.selected_time)
+        st.session_state.selected_time = selected_time
+        
         # City selection
         cities = ["Mumbai, India", "Delhi, India", "Bangalore, India", "Kolkata, India", "Chennai, India", 
                  "New York, USA", "London, UK", "Tokyo, Japan", "Sydney, Australia", "Dubai, UAE"]
@@ -1215,10 +1221,11 @@ with tab1:
         st.session_state.selected_city = selected_city
         
         st.markdown(f"**Selected Date:** {selected_date.strftime('%Y-%m-%d')}")
+        st.markdown(f"**Selected Time:** {selected_time.strftime('%H:%M')}")
         st.markdown(f"**Location:** {selected_city}")
         
         if st.button("Generate Report"):
-            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')} in {selected_city}")
+            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')} at {selected_time.strftime('%H:%M')} in {selected_city}")
     
     # Add birth chart visualization
     st.markdown("---")
@@ -1227,8 +1234,11 @@ with tab1:
     # Get planetary positions for the selected date
     planetary_positions = get_planetary_positions(st.session_state.selected_date)
     
+    # Create title with date and time
+    chart_title = f"Birth Chart / Natal Chart - {st.session_state.selected_date.strftime('%Y-%m-%d')} {st.session_state.selected_time.strftime('%H:%M')}"
+    
     # Create and display the birth chart
-    birth_chart = create_birth_chart(planetary_positions)
+    birth_chart = create_birth_chart(planetary_positions, title=chart_title)
     st.plotly_chart(birth_chart, use_container_width=True)
     
     # Display planetary positions data
@@ -1256,7 +1266,7 @@ moon_transit_df['Date'] = pd.to_datetime(moon_transit_df['Date'])
 # Generate planetary aspects for selected month
 planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
 # Get retrograde planets for selected date
-retrograde_planets = get_retrograde_planets(datetime.combine(st.session_state.selected_date, datetime.min.time()))
+retrograde_planets = get_retrograde_planets(datetime.combine(st.session_state.selected_date, st.session_state.selected_time))
 
 # Create planetary details dictionary with dynamic data
 planetary_details = {
@@ -1429,13 +1439,14 @@ with tab2:
 with tab3:
     st.header("Planetary Effect on Markets")
     selected_date_str = st.session_state.selected_date.strftime('%Y-%m-%d')
-    st.subheader(f"Effects for {selected_date_str}")
+    selected_time_str = st.session_state.selected_time.strftime('%H:%M')
+    st.subheader(f"Effects for {selected_date_str} at {selected_time_str}")
     
     # Find active events for the selected date
     active_events = []
     
     # Convert selected_date to datetime for comparison
-    selected_datetime = datetime.combine(st.session_state.selected_date, datetime.min.time())
+    selected_datetime = datetime.combine(st.session_state.selected_date, st.session_state.selected_time)
     
     # Check planetary transits
     for transit in planetary_details['Planetary Transit']:
@@ -1491,7 +1502,7 @@ with tab3:
                 st.markdown(f"**Overall Effect:** {effect_data['Effect']}")
                 st.markdown("---")
     else:
-        st.info("No significant planetary events for the selected date.")
+        st.info("No significant planetary events for the selected date and time.")
 
 # Tab 4: Upcoming Planetary Transit
 with tab4:
@@ -1701,7 +1712,8 @@ with tab4:
 with tab5:
     st.header("Today Transit")
     selected_date_str = st.session_state.selected_date.strftime('%Y-%m-%d')
-    st.subheader(f"Planetary Transit Details for {selected_date_str}")
+    selected_time_str = st.session_state.selected_time.strftime('%H:%M')
+    st.subheader(f"Planetary Transit Details for {selected_date_str} at {selected_time_str}")
     
     # Get planetary positions for the selected date
     planetary_positions = get_planetary_positions(st.session_state.selected_date)
