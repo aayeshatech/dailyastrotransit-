@@ -16,7 +16,7 @@ st.markdown("---")
 
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = date(2025, 8, 4)
+    st.session_state.selected_date = date(2025, 8, 2)  # Changed default to August 2, 2025
 if 'planetary_options' not in st.session_state:
     st.session_state.planetary_options = {
         'Planetary Transit': True,
@@ -30,8 +30,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["Input Date", "Planetary Report", "Plane
 
 # Function to generate moon phases for any month
 def generate_moon_phases(year, month):
-    # This is a simplified version - in reality, moon phases need complex calculations
-    # For demo purposes, we'll approximate
     phases = []
     
     # New moon (approximate)
@@ -74,18 +72,14 @@ def generate_moon_phases(year, month):
 
 # Function to generate moon transits for any month
 def generate_moon_transits(year, month):
-    # Simplified moon transit cycle (approximately 2.5 days per sign)
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
              'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
     
-    # Get number of days in month
     days_in_month = calendar.monthrange(year, month)[1]
-    
     transits = []
     current_sign_index = 0
     
     for day in range(1, days_in_month + 1):
-        # Change sign every 2-3 days
         if day % 3 == 1 and day > 1:
             current_sign_index = (current_sign_index + 1) % 12
         
@@ -190,7 +184,6 @@ def get_retrograde_planets(selected_date):
 
 # Function to generate planetary aspects for any month
 def generate_planetary_aspects(year, month):
-    # Simplified aspect generation for demo
     aspects = []
     
     # Generate some example aspects
@@ -213,8 +206,8 @@ def generate_planetary_aspects(year, month):
     if month == 8:  # Special case for August
         aspects.append({
             'name': 'Venus Sextile Jupiter',
-            'start': f'{year}-{month:02d}-04',
-            'end': f'{year}-{month:02d}-04',
+            'start': f'{year}-{month:02d}-02',
+            'end': f'{year}-{month:02d}-02',
             'effect': 'Bullish',
             'description': 'Positive social mood, consumer spending'
         })
@@ -237,173 +230,173 @@ def generate_planetary_aspects(year, month):
     
     return aspects
 
-# Function to generate planetary positions for a specific date
-def generate_planetary_positions(selected_date):
-    # Define planets and their properties
-    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
-    
-    # Define zodiac signs and their lords
-    signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
-             'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-    
-    sign_lords = {
-        'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
-        'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
-        'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
-    }
-    
-    # Define nakshatras and their lords
-    nakshatras = [
-        'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
-        'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
-        'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-        'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
-        'Uttara Bhadrapada', 'Revati'
-    ]
-    
-    nakshatra_lords = {
-        'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
-        'Mrigashira': 'Mars', 'Ardra': 'Rahu', 'Punarvasu': 'Jupiter', 'Pushya': 'Saturn',
-        'Ashlesha': 'Mercury', 'Magha': 'Ketu', 'Purva Phalguni': 'Venus', 'Uttara Phalguni': 'Sun',
-        'Hasta': 'Moon', 'Chitra': 'Mars', 'Swati': 'Rahu', 'Vishakha': 'Jupiter',
-        'Anuradha': 'Saturn', 'Jyeshtha': 'Mercury', 'Mula': 'Ketu', 'Purva Ashadha': 'Venus',
-        'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
-        'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
-    }
-    
-    # Generate positions for each planet
-    positions = []
-    for planet in planets:
-        # Randomly select a sign for the planet
-        sign = random.choice(signs)
-        lord = sign_lords[sign]
+# Function to get planetary positions for a specific date
+def get_planetary_positions(selected_date):
+    # Specific data for August 2, 2025
+    if selected_date == date(2025, 8, 2):
+        return [
+            {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
+            {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
+            {'Planet': 'Mercury', 'Lord': 'Mercury', 'Sublord': 'Venus', 'Degree': 28.75, 'House': 5, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
+            {'Planet': 'Venus', 'Lord': 'Mercury', 'Sublord': 'Moon', 'Degree': 10.25, 'House': 6, 'Nakshatra': 'Hasta', 'Effect': 'Positive'},
+            {'Planet': 'Mars', 'Lord': 'Jupiter', 'Sublord': 'Ketu', 'Degree': 2.5, 'House': 8, 'Nakshatra': 'Mula', 'Effect': 'Negative'},
+            {'Planet': 'Jupiter', 'Lord': 'Mars', 'Sublord': 'Mercury', 'Degree': 20.67, 'House': 7, 'Nakshatra': 'Jyeshtha', 'Effect': 'Positive'},
+            {'Planet': 'Saturn', 'Lord': 'Jupiter', 'Sublord': 'Venus', 'Degree': 25.17, 'House': 8, 'Nakshatra': 'Purva Ashadha', 'Effect': 'Negative'},
+            {'Planet': 'Rahu', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 5.5, 'House': 12, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
+            {'Planet': 'Ketu', 'Lord': 'Sun', 'Sublord': 'Sun', 'Degree': 5.5, 'House': 6, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Positive'}
+        ]
+    else:
+        # For other dates, generate random data
+        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu']
+        signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
         
-        # Randomly select a nakshatra
-        nakshatra = random.choice(nakshatras)
-        sublord = nakshatra_lords[nakshatra]
+        sign_lords = {
+            'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
+            'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
+            'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
+        }
         
-        # Random degree between 0-30
-        degree = round(random.uniform(0, 30), 2)
+        nakshatras = [
+            'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
+            'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
+            'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+            'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
+            'Uttara Bhadrapada', 'Revati'
+        ]
         
-        # Random house between 1-12
-        house = random.randint(1, 12)
+        nakshatra_lords = {
+            'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
+            'Mrigashira': 'Mars', 'Ardra': 'Rahu', 'Punarvasu': 'Jupiter', 'Pushya': 'Saturn',
+            'Ashlesha': 'Mercury', 'Magha': 'Ketu', 'Purva Phalguni': 'Venus', 'Uttara Phalguni': 'Sun',
+            'Hasta': 'Moon', 'Chitra': 'Mars', 'Swati': 'Rahu', 'Vishakha': 'Jupiter',
+            'Anuradha': 'Saturn', 'Jyeshtha': 'Mercury', 'Mula': 'Ketu', 'Purva Ashadha': 'Venus',
+            'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
+            'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
+        }
         
-        # Random effect
-        effect = random.choice(['Positive', 'Negative'])
+        positions = []
+        for planet in planets:
+            sign = random.choice(signs)
+            lord = sign_lords[sign]
+            nakshatra = random.choice(nakshatras)
+            sublord = nakshatra_lords[nakshatra]
+            degree = round(random.uniform(0, 30), 2)
+            house = random.randint(1, 12)
+            effect = random.choice(['Positive', 'Negative'])
+            
+            positions.append({
+                'Planet': planet,
+                'Lord': lord,
+                'Sublord': sublord,
+                'Degree': degree,
+                'House': house,
+                'Nakshatra': nakshatra,
+                'Effect': effect
+            })
         
-        positions.append({
-            'Planet': planet,
-            'Lord': lord,
-            'Sublord': sublord,
-            'Degree': degree,
-            'House': house,
-            'Nakshatra': nakshatra,
-            'Effect': effect
-        })
-    
-    return positions
+        return positions
 
-# Function to generate next house changes for planets
-def generate_next_house_changes(selected_date):
-    # Define planets
-    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
-    
-    # Define nakshatras
-    nakshatras = [
-        'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
-        'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
-        'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-        'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
-        'Uttara Bhadrapada', 'Revati'
-    ]
-    
-    # Generate changes for each planet
-    changes = []
-    for planet in planets:
-        # Current house (random for demo)
-        current_house = random.randint(1, 12)
+# Function to get next house changes for a specific date
+def get_next_house_changes(selected_date):
+    # Specific data for August 2, 2025
+    if selected_date == date(2025, 8, 2):
+        return [
+            {'Planet': 'Sun', 'Current House': 5, 'Next House': 6, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-16 10:30'},
+            {'Planet': 'Moon', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Jyeshtha', 'Time of Change': '2025-08-04 14:15'},
+            {'Planet': 'Mercury', 'Current House': 5, 'Next House': 6, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Phalguni', 'Time of Change': '2025-08-03 09:45'},
+            {'Planet': 'Venus', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-08 16:20'},
+            {'Planet': 'Mars', 'Current House': 8, 'Next House': 9, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Purva Ashadha', 'Time of Change': '2025-08-05 11:30'},
+            {'Planet': 'Jupiter', 'Current House': 7, 'Next House': 8, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Mula', 'Time of Change': '2025-08-07 13:45'},
+            {'Planet': 'Saturn', 'Current House': 8, 'Next House': 9, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Uttara Ashadha', 'Time of Change': '2025-08-12 08:15'},
+            {'Planet': 'Rahu', 'Current House': 12, 'Next House': 1, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-10 15:50'},
+            {'Planet': 'Ketu', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-09 12:25'}
+        ]
+    else:
+        # For other dates, generate random data
+        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu']
+        changes = []
         
-        # Next house (current + 1, or 1 if current is 12)
-        next_house = 1 if current_house == 12 else current_house + 1
+        for planet in planets:
+            current_house = random.randint(1, 12)
+            next_house = 1 if current_house == 12 else current_house + 1
+            degree_at_change = round(random.uniform(0, 30), 2)
+            
+            nakshatras = [
+                'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
+                'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
+                'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+                'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
+                'Uttara Bhadrapada', 'Revati'
+            ]
+            nakshatra_at_change = random.choice(nakshatras)
+            
+            days_ahead = random.randint(1, 7)
+            hours_ahead = random.randint(1, 23)
+            minutes_ahead = random.randint(0, 59)
+            change_datetime = selected_date + timedelta(days=days_ahead, hours=hours_ahead, minutes=minutes_ahead)
+            
+            changes.append({
+                'Planet': planet,
+                'Current House': current_house,
+                'Next House': next_house,
+                'Degree at Change': degree_at_change,
+                'Nakshatra at Change': nakshatra_at_change,
+                'Time of Change': change_datetime.strftime('%Y-%m-%d %H:%M')
+            })
         
-        # Random degree at change
-        degree_at_change = round(random.uniform(0, 30), 2)
-        
-        # Random nakshatra at change
-        nakshatra_at_change = random.choice(nakshatras)
-        
-        # Random time in the next 1-7 days
-        days_ahead = random.randint(1, 7)
-        hours_ahead = random.randint(1, 23)
-        minutes_ahead = random.randint(0, 59)
-        
-        change_datetime = selected_date + timedelta(days=days_ahead, hours=hours_ahead, minutes=minutes_ahead)
-        
-        changes.append({
-            'Planet': planet,
-            'Current House': current_house,
-            'Next House': next_house,
-            'Degree at Change': degree_at_change,
-            'Nakshatra at Change': nakshatra_at_change,
-            'Time of Change': change_datetime.strftime('%Y-%m-%d %H:%M')
-        })
-    
-    return changes
+        return changes
 
-# Function to generate intraday aspects for a specific date
-def generate_intraday_aspects(selected_date):
-    # Define aspect types
-    aspect_types = ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition']
-    
-    # Define planets
-    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
-    
-    # Generate 4-6 aspects for the day
-    num_aspects = random.randint(4, 6)
-    aspects = []
-    
-    for i in range(num_aspects):
-        # Random time between 9:30 and 16:00
-        hour = random.randint(9, 15)
-        minute = random.randint(0, 59)
-        if hour == 15 and minute > 30:
-            minute = 30
+# Function to get intraday aspects for a specific date
+def get_intraday_aspects(selected_date):
+    # Specific data for August 2, 2025
+    if selected_date == date(2025, 8, 2):
+        return [
+            {'Time': '09:30', 'Aspect': 'Moon Sextile Venus', 'Effect': 'Bullish', 'Description': 'Harmonious emotional expression, social connections'},
+            {'Time': '11:15', 'Aspect': 'Mars Square Jupiter', 'Effect': 'Bearish', 'Description': 'Conflict between action and expansion, overconfidence'},
+            {'Time': '13:45', 'Aspect': 'Mercury Trine Saturn', 'Effect': 'Bullish', 'Description': 'Structured thinking, practical communication'},
+            {'Time': '15:20', 'Aspect': 'Sun Opposition Neptune', 'Effect': 'Bearish', 'Description': 'Confusion between reality and illusion, deception'}
+        ]
+    else:
+        # For other dates, generate random data
+        aspect_types = ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition']
+        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
         
-        time_str = f"{hour:02d}:{minute:02d}"
+        num_aspects = random.randint(4, 6)
+        aspects = []
         
-        # Random aspect type
-        aspect_type = random.choice(aspect_types)
+        for i in range(num_aspects):
+            hour = random.randint(9, 15)
+            minute = random.randint(0, 59)
+            if hour == 15 and minute > 30:
+                minute = 30
+            time_str = f"{hour:02d}:{minute:02d}"
+            
+            aspect_type = random.choice(aspect_types)
+            planet1 = random.choice(planets)
+            planet2 = random.choice([p for p in planets if p != planet1])
+            effect = random.choice(['Bullish', 'Bearish', 'Neutral'])
+            
+            if aspect_type == 'Conjunction':
+                description = f"Combining energies of {planet1} and {planet2}"
+            elif aspect_type == 'Sextile':
+                description = f"Harmonious opportunity between {planet1} and {planet2}"
+            elif aspect_type == 'Square':
+                description = f"Tension between {planet1} and {planet2}"
+            elif aspect_type == 'Trine':
+                description = f"Flowing energy between {planet1} and {planet2}"
+            else:  # Opposition
+                description = f"Polarity between {planet1} and {planet2}"
+            
+            aspects.append({
+                'Time': time_str,
+                'Aspect': f"{planet1} {aspect_type} {planet2}",
+                'Effect': effect,
+                'Description': description
+            })
         
-        # Random planets involved
-        planet1 = random.choice(planets)
-        planet2 = random.choice([p for p in planets if p != planet1])
-        
-        # Random effect
-        effect = random.choice(['Bullish', 'Bearish', 'Neutral'])
-        
-        # Description based on aspect and effect
-        if aspect_type == 'Conjunction':
-            description = f"Combining energies of {planet1} and {planet2}"
-        elif aspect_type == 'Sextile':
-            description = f"Harmonious opportunity between {planet1} and {planet2}"
-        elif aspect_type == 'Square':
-            description = f"Tension between {planet1} and {planet2}"
-        elif aspect_type == 'Trine':
-            description = f"Flowing energy between {planet1} and {planet2}"
-        else:  # Opposition
-            description = f"Polarity between {planet1} and {planet2}"
-        
-        aspects.append({
-            'Time': time_str,
-            'Aspect': f"{planet1} {aspect_type} {planet2}",
-            'Effect': effect,
-            'Description': description
-        })
-    
-    # Sort by time
-    aspects.sort(key=lambda x: x['Time'])
-    
-    return aspects
+        aspects.sort(key=lambda x: x['Time'])
+        return aspects
 
 # Tab 1: Input Date
 with tab1:
@@ -417,7 +410,7 @@ with tab1:
         
         # Get days in selected month
         days_in_month = calendar.monthrange(selected_year, selected_month)[1]
-        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=3)
+        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=1)  # Changed default to 2nd day
         
         selected_date = date(selected_year, selected_month, selected_day)
         st.session_state.selected_date = selected_date
@@ -554,11 +547,11 @@ planetary_effects = {
 
 # Intraday moon aspects (simplified for demo)
 intraday_moon_aspects = {
-    '2025-08-04': [
-        {'time': '09:30', 'aspect': 'Moon Trine Sun', 'effect': 'Bullish', 'description': 'Confident market open, positive sentiment'},
-        {'time': '11:15', 'aspect': 'Mercury Oppose Neptune', 'effect': 'Bearish', 'description': 'Confusion, misinformation, tech volatility'},
-        {'time': '13:45', 'aspect': 'Venus Sextile Jupiter', 'effect': 'Bullish', 'description': 'Positive news flow, consumer spending'},
-        {'time': '15:20', 'aspect': 'Mars Square Pluto', 'effect': 'Bearish', 'description': 'Power struggles, institutional conflicts'}
+    '2025-08-02': [
+        {'time': '09:30', 'aspect': 'Moon Sextile Venus', 'effect': 'Bullish', 'description': 'Harmonious emotional expression, social connections'},
+        {'time': '11:15', 'aspect': 'Mars Square Jupiter', 'effect': 'Bearish', 'description': 'Conflict between action and expansion, overconfidence'},
+        {'time': '13:45', 'aspect': 'Mercury Trine Saturn', 'effect': 'Bullish', 'description': 'Structured thinking, practical communication'},
+        {'time': '15:20', 'aspect': 'Sun Opposition Neptune', 'effect': 'Bearish', 'description': 'Confusion between reality and illusion, deception'}
     ],
     '2025-08-05': [
         {'time': '10:00', 'aspect': 'Moon Conjunct Mars', 'effect': 'Bearish', 'description': 'Aggressive energy, impulsive decisions'},
@@ -886,24 +879,24 @@ with tab5:
     selected_date_str = st.session_state.selected_date.strftime('%Y-%m-%d')
     st.subheader(f"Planetary Transit Details for {selected_date_str}")
     
-    # Generate planetary positions for the selected date
-    planetary_positions = generate_planetary_positions(st.session_state.selected_date)
+    # Get planetary positions for the selected date
+    planetary_positions = get_planetary_positions(st.session_state.selected_date)
     
     # Part 1: Planetary positions
     st.markdown("### Planetary Positions")
     positions_df = pd.DataFrame(planetary_positions)
     st.dataframe(positions_df, use_container_width=True)
     
-    # Generate next house changes
-    next_house_changes = generate_next_house_changes(st.session_state.selected_date)
+    # Get next house changes
+    next_house_changes = get_next_house_changes(st.session_state.selected_date)
     
     # Part 2: Next house changes
     st.markdown("### Upcoming House Changes")
     changes_df = pd.DataFrame(next_house_changes)
     st.dataframe(changes_df, use_container_width=True)
     
-    # Generate intraday aspects
-    intraday_aspects = generate_intraday_aspects(st.session_state.selected_date)
+    # Get intraday aspects
+    intraday_aspects = get_intraday_aspects(st.session_state.selected_date)
     
     # Part 3: Intraday aspects
     st.markdown("### Intraday Planetary Aspects")
