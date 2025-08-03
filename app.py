@@ -8,14 +8,11 @@ import calendar
 import random
 import math
 import pytz
-
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
-
 # Create header
 st.markdown("<h1 style='text-align: center; color: #1E88E5;'>Astro Transit For Daily Transit</h1>", unsafe_allow_html=True)
 st.markdown("---")
-
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
     st.session_state.selected_date = date(2025, 8, 4)
@@ -30,7 +27,6 @@ if 'planetary_options' not in st.session_state:
         'Planetary Retrograde': True,
         'Moon Phases': True
     }
-
 # City coordinates for location-based calculations
 city_coordinates = {
     "Mumbai, India": (19.0760, 72.8777),
@@ -44,11 +40,9 @@ city_coordinates = {
     "Sydney, Australia": (-33.8688, 151.2093),
     "Dubai, UAE": (25.2048, 55.2708),
 }
-
 # Zodiac signs and nakshatras
 zodiac_signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
                 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-
 nakshatras = [
     'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
     'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
@@ -56,14 +50,12 @@ nakshatras = [
     'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
     'Uttara Bhadrapada', 'Revati'
 ]
-
 # Sign lords
 sign_lords = {
     'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
     'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
     'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
 }
-
 # Nakshatra lords
 nakshatra_lords = {
     'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
@@ -74,7 +66,6 @@ nakshatra_lords = {
     'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
     'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
 }
-
 # Exaltation and debilitation signs
 exaltation = {
     'Sun': ('Aries', 10),
@@ -85,7 +76,6 @@ exaltation = {
     'Jupiter': ('Cancer', 5),
     'Saturn': ('Libra', 20),
 }
-
 debilitation = {
     'Sun': ('Libra', 10),
     'Moon': ('Scorpio', 3),
@@ -95,7 +85,6 @@ debilitation = {
     'Jupiter': ('Capricorn', 5),
     'Saturn': ('Aries', 20),
 }
-
 # Own signs
 own_sign_lords = {
     'Sun': 'Leo',
@@ -106,10 +95,8 @@ own_sign_lords = {
     'Jupiter': ['Sagittarius', 'Pisces'],
     'Saturn': ['Capricorn', 'Aquarius'],
 }
-
 # Global variable to track if skyfield is available
 SKYFIELD_AVAILABLE = False
-
 # Function to check if skyfield is available and initialize it
 def check_skyfield():
     global SKYFIELD_AVAILABLE
@@ -120,7 +107,6 @@ def check_skyfield():
     except ImportError:
         SKYFIELD_AVAILABLE = False
         return None, None
-
 # Initialize ephemeris (cached) if skyfield is available
 def initialize_ephemeris():
     if not SKYFIELD_AVAILABLE:
@@ -134,7 +120,6 @@ def initialize_ephemeris():
     ts = load.timescale()
     earth = eph['earth']
     return eph, ts, earth
-
 # Calculate planetary positions for a given date and time
 def calculate_planetary_positions(selected_date, selected_time, selected_city):
     # Check if skyfield is available
@@ -222,11 +207,11 @@ def calculate_planetary_positions(selected_date, selected_time, selected_city):
         })
     
     return positions
-
 # Fallback function for planetary positions when skyfield is not available
 def get_planetary_positions_fallback(selected_date):
-    # Specific data for August 4, 2025
-    if selected_date == date(2025, 8, 4):
+    # FIX: Use explicit date comparison to ensure proper matching
+    # Check if selected_date is August 4, 2025
+    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
         return [
             {'Planet': 'Sun', 'Lord': 'Moon', 'Sublord': 'Mercury', 'Degree': 17.49, 'House': 2, 'Nakshatra': 'Ashlesha', 'Effect': 'Positive'},
             {'Planet': 'Moon', 'Lord': 'Mercury', 'Sublord': 'Ketu', 'Degree': 16.43, 'House': 6, 'Nakshatra': 'Jyeshtha', 'Effect': 'Negative'},
@@ -240,7 +225,7 @@ def get_planetary_positions_fallback(selected_date):
             {'Planet': 'Neptune', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 7.43, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'}
         ]
     # Specific data for August 2, 2025
-    elif selected_date == date(2025, 8, 2):
+    elif selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 2:
         return [
             {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
             {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
@@ -277,7 +262,6 @@ def get_planetary_positions_fallback(selected_date):
             })
         
         return positions
-
 # Check if a planet is retrograde
 def is_retrograde(planet_name, t, eph, earth):
     # Skip Sun and Moon as they are never retrograde
@@ -306,7 +290,6 @@ def is_retrograde(planet_name, t, eph, earth):
     
     # If diff is negative, the planet is retrograde
     return diff < 0
-
 # Get retrograde planets for a given date and time
 def get_retrograde_planets_calculated(selected_date, selected_time, selected_city):
     # Check if skyfield is available
@@ -337,7 +320,6 @@ def get_retrograde_planets_calculated(selected_date, selected_time, selected_cit
             retrogrades.append(f'{planet_name} Retrograde')
     
     return retrogrades
-
 # Fallback function for retrograde planets when skyfield is not available
 def get_retrograde_planets_fallback(selected_date):
     retrogrades = []
@@ -445,10 +427,8 @@ def get_retrograde_planets_fallback(selected_date):
             retrogrades.append('Pluto Retrograde')
     
     return retrogrades
-
 # Create tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Input Date", "Planetary Report", "Planetary Effect", "Upcoming Planetary Transit", "Today Transit"])
-
 # Function to generate moon phases for any month
 def generate_moon_phases(year, month):
     phases = []
@@ -490,7 +470,6 @@ def generate_moon_phases(year, month):
     })
     
     return phases
-
 # Function to generate moon transits for any month
 def generate_moon_transits(year, month):
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
@@ -510,7 +489,6 @@ def generate_moon_transits(year, month):
         })
     
     return transits
-
 # Function to generate planetary aspects for any month
 def generate_planetary_aspects(year, month):
     aspects = []
@@ -558,7 +536,6 @@ def generate_planetary_aspects(year, month):
     })
     
     return aspects
-
 # Function to get planetary positions for a specific date
 def get_planetary_positions(selected_date):
     return calculate_planetary_positions(
@@ -566,11 +543,11 @@ def get_planetary_positions(selected_date):
         st.session_state.selected_time, 
         st.session_state.selected_city
     )
-
 # Function to get next house changes for a specific date
 def get_next_house_changes(selected_date):
-    # For now, we'll keep this as static data
-    if selected_date == date(2025, 8, 4):
+    # FIX: Use explicit date comparison to ensure proper matching
+    # Check if selected_date is August 4, 2025
+    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
         return [
             {'Planet': 'Sun', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Magha', 'Time of Change': '2025-08-16 10:30'},
             {'Planet': 'Moon', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Mula', 'Time of Change': '2025-08-06 14:15'},
@@ -610,11 +587,11 @@ def get_next_house_changes(selected_date):
             })
         
         return changes
-
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
-    # For now, we'll keep this as static data
-    if selected_date == date(2025, 8, 4):
+    # FIX: Use explicit date comparison to ensure proper matching
+    # Check if selected_date is August 4, 2025
+    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
         return [
             {'Time': '09:15', 'Aspect': 'Moon in Jyeshtha (Scorpio)', 'Effect': 'Bearish', 'Description': 'Rahu aspects Moon (exact trine). Saturn-Rahu conjunction in Pisces creates volatility.'},
             {'Time': '10:15', 'Aspect': 'Mercury in Pushya (Cancer)', 'Effect': 'Bearish', 'Description': 'Mercury in Pushya aspected by Rahu. Technical breakdown likely.'},
@@ -665,7 +642,6 @@ def get_intraday_aspects(selected_date):
         
         aspects.sort(key=lambda x: x['Time'])
         return aspects
-
 # Function to create birth chart visualization
 def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     # Define zodiac signs and their degrees
@@ -778,7 +754,6 @@ def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     )
     
     return fig
-
 # Function to get all planetary transits for a year
 def get_all_planetary_transits(year):
     transits = []
@@ -1360,7 +1335,6 @@ def get_all_planetary_transits(year):
     })
     
     return transits
-
 # Function to display upcoming transits in box table format
 def display_upcoming_transits(year, month):
     # Get all transits for the year
@@ -1414,7 +1388,6 @@ def display_upcoming_transits(year, month):
                             """, unsafe_allow_html=True)
                 else:
                     st.info("No major transits this month")
-
 # Tab 1: Input Date
 with tab1:
     st.header("Select Date for Report")
@@ -1475,29 +1448,23 @@ with tab1:
     
     # Display upcoming transits in box table format
     display_upcoming_transits(selected_year, selected_month)
-
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
 selected_month = st.session_state.selected_date.month
-
 # Generate moon phases for selected month
 moon_phases = generate_moon_phases(selected_year, selected_month)
-
 # Generate moon transits for selected month
 moon_transits = generate_moon_transits(selected_year, selected_month)
 moon_transit_df = pd.DataFrame(moon_transits)
 moon_transit_df['Date'] = pd.to_datetime(moon_transit_df['Date'])
-
 # Generate planetary aspects for selected month
 planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
-
 # Get retrograde planets for selected date (now uses live calculation or fallback)
 retrograde_planets = get_retrograde_planets_calculated(
     st.session_state.selected_date,
     st.session_state.selected_time,
     st.session_state.selected_city
 )
-
 # Create planetary details dictionary with dynamic data
 planetary_details = {
     'Planetary Transit': [
@@ -1523,7 +1490,6 @@ planetary_details = {
     ],
     'Moon Phases': moon_phases
 }
-
 # Planetary effects on markets
 planetary_effects = {
     'Mercury Retrograde': {
@@ -1604,7 +1570,6 @@ planetary_effects = {
         'Effect': 'Bullish - Transformational opportunities, deep changes'
     }
 }
-
 # Intraday moon aspects (updated with correct real-time data for August 4, 2025)
 intraday_moon_aspects = {
     '2025-08-04': [
@@ -1624,7 +1589,6 @@ intraday_moon_aspects = {
         {'time': '16:00', 'aspect': 'Moon Sextile Venus', 'effect': 'Bullish', 'description': 'Harmony, social connections, positive close'}
     ]
 }
-
 # Tab 2: Planetary Report
 with tab2:
     st.header("Planetary Report")
@@ -1664,7 +1628,6 @@ with tab2:
         st.markdown("### Moon Phases")
         moon_df = pd.DataFrame(planetary_details['Moon Phases'])
         st.dataframe(moon_df, use_container_width=True)
-
 # Tab 3: Planetary Effect
 with tab3:
     st.header("Planetary Effect on Markets")
@@ -1733,7 +1696,6 @@ with tab3:
                 st.markdown("---")
     else:
         st.info("No significant planetary events for the selected date and time.")
-
 # Tab 4: Upcoming Planetary Transit
 with tab4:
     st.header("Upcoming Planetary Transit")
@@ -1937,7 +1899,6 @@ with tab4:
         # Show moon transit data in a table
         st.markdown("### Moon Transit Schedule")
         st.dataframe(moon_transit_df, use_container_width=True)
-
 # Tab 5: Today Transit
 with tab5:
     st.header("Today Transit")
@@ -2011,7 +1972,6 @@ with tab5:
         pip install skyfield
         ```
         """)
-
 # Add a footer
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: gray;'>Astro Transit For Daily Transit &copy; 2025</p>", unsafe_allow_html=True)
