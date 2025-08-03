@@ -211,91 +211,61 @@ def calculate_planetary_positions(selected_date, selected_time, selected_city):
 def get_planetary_positions_fallback(selected_date):
     # Create a seed based on the date for consistent results
     date_seed = int(selected_date.strftime('%Y%m%d'))
-    local_random = random.Random()
-    local_random.seed(date_seed)
     
-    # FIX: Use explicit date comparison to ensure proper matching
-    # Check if selected_date is August 4, 2025
-    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
-        return [
-            {'Planet': 'Sun', 'Lord': 'Moon', 'Sublord': 'Mercury', 'Degree': 17.49, 'House': 2, 'Nakshatra': 'Ashlesha', 'Effect': 'Positive'},
-            {'Planet': 'Moon', 'Lord': 'Mercury', 'Sublord': 'Ketu', 'Degree': 16.43, 'House': 6, 'Nakshatra': 'Jyeshtha', 'Effect': 'Negative'},
-            {'Planet': 'Mercury', 'Lord': 'Saturn', 'Sublord': 'Moon', 'Degree': 12.34, 'House': 3, 'Nakshatra': 'Pushya', 'Effect': 'Positive'},
-            {'Planet': 'Venus', 'Lord': 'Rahu', 'Sublord': 'Mercury', 'Degree': 10.24, 'House': 3, 'Nakshatra': 'Ardra', 'Effect': 'Positive'},
-            {'Planet': 'Mars', 'Lord': 'Ketu', 'Sublord': 'Sun', 'Degree': 4.02, 'House': 2, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Negative'},
-            {'Planet': 'Jupiter', 'Lord': 'Rahu', 'Sublord': 'Mercury', 'Degree': 18.10, 'House': 12, 'Nakshatra': 'Ardra', 'Effect': 'Positive'},
-            {'Planet': 'Saturn', 'Lord': 'Saturn', 'Sublord': 'Jupiter', 'Degree': 7.19, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Rahu', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 24.46, 'House': 10, 'Nakshatra': 'Purva Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Ketu', 'Lord': 'Venus', 'Sublord': 'Sun', 'Degree': 24.46, 'House': 4, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
-            {'Planet': 'Neptune', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 7.43, 'House': 10, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'}
-        ]
-    # Specific data for August 5, 2025
-    elif selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 5:
-        return [
-            {'Planet': 'Sun', 'Lord': 'Sun', 'Sublord': 'Ketu', 'Degree': 15.5, 'House': 5, 'Nakshatra': 'Magha', 'Effect': 'Positive'},
-            {'Planet': 'Moon', 'Lord': 'Mars', 'Sublord': 'Saturn', 'Degree': 5.33, 'House': 10, 'Nakshatra': 'Anuradha', 'Effect': 'Negative'},
-            {'Planet': 'Mercury', 'Lord': 'Mercury', 'Sublord': 'Venus', 'Degree': 28.75, 'House': 5, 'Nakshatra': 'Purva Phalguni', 'Effect': 'Positive'},
-            {'Planet': 'Venus', 'Lord': 'Mercury', 'Sublord': 'Moon', 'Degree': 10.25, 'House': 6, 'Nakshatra': 'Hasta', 'Effect': 'Positive'},
-            {'Planet': 'Mars', 'Lord': 'Jupiter', 'Sublord': 'Ketu', 'Degree': 2.5, 'House': 8, 'Nakshatra': 'Mula', 'Effect': 'Negative'},
-            {'Planet': 'Jupiter', 'Lord': 'Mars', 'Sublord': 'Mercury', 'Degree': 20.67, 'House': 7, 'Nakshatra': 'Jyeshtha', 'Effect': 'Positive'},
-            {'Planet': 'Saturn', 'Lord': 'Jupiter', 'Sublord': 'Venus', 'Degree': 25.17, 'House': 8, 'Nakshatra': 'Purva Ashadha', 'Effect': 'Negative'},
-            {'Planet': 'Rahu', 'Lord': 'Jupiter', 'Sublord': 'Saturn', 'Degree': 5.5, 'House': 12, 'Nakshatra': 'Uttara Bhadrapada', 'Effect': 'Negative'},
-            {'Planet': 'Ketu', 'Lord': 'Sun', 'Sublord': 'Sun', 'Degree': 5.5, 'House': 6, 'Nakshatra': 'Uttara Phalguni', 'Effect': 'Positive'}
-        ]
-    else:
-        # For other dates, generate consistent data based on date seed
-        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
-        positions = []
+    # Always generate data for any date
+    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
+    positions = []
+    
+    # Use the seed to ensure consistent results for the same date
+    for i, planet in enumerate(planets):
+        # Create a local random generator with the seed
+        local_random = random.Random()
+        local_random.seed(date_seed + i)
         
-        # Use the seed to ensure consistent results for the same date
-        for i, planet in enumerate(planets):
-            # Use planet index and date seed to get consistent values
-            local_random.seed(date_seed + i)
-            
-            # Get sign index based on date and planet
-            sign_index = (date_seed + i) % 12
-            sign = zodiac_signs[sign_index]
-            
-            lord = sign_lords[sign]
-            
-            # Get nakshatra index
-            nakshatra_index = (date_seed + i * 2) % 27
-            nakshatra = nakshatras[nakshatra_index]
-            
-            sublord = nakshatra_lords[nakshatra]
-            
-            # Generate degree
-            degree = round(local_random.uniform(0, 30), 2)
-            
-            # Generate house
-            house = (date_seed + i) % 12 + 1
-            
-            # Determine effect based on planet and sign
-            effect = 'Neutral'
-            if planet in exaltation and sign == exaltation[planet][0]:
-                effect = 'Positive'
-            elif planet in debilitation and sign == debilitation[planet][0]:
-                effect = 'Negative'
-            elif planet in own_sign_lords:
-                own_signs = own_sign_lords[planet]
-                if isinstance(own_signs, list):
-                    if sign in own_signs:
-                        effect = 'Positive'
-                else:
-                    if sign == own_signs:
-                        effect = 'Positive'
-            
-            positions.append({
-                'Planet': planet,
-                'Lord': lord,
-                'Sublord': sublord,
-                'Degree': degree,
-                'House': house,
-                'Nakshatra': nakshatra,
-                'Effect': effect
-            })
+        # Get sign index based on date and planet
+        sign_index = (date_seed + i) % 12
+        sign = zodiac_signs[sign_index]
         
-        return positions
+        lord = sign_lords[sign]
+        
+        # Get nakshatra index
+        nakshatra_index = (date_seed + i * 2) % 27
+        nakshatra = nakshatras[nakshatra_index]
+        
+        sublord = nakshatra_lords[nakshatra]
+        
+        # Generate degree
+        degree = round(local_random.uniform(0, 30), 2)
+        
+        # Generate house
+        house = (date_seed + i) % 12 + 1
+        
+        # Determine effect based on planet and sign
+        effect = 'Neutral'
+        if planet in exaltation and sign == exaltation[planet][0]:
+            effect = 'Positive'
+        elif planet in debilitation and sign == debilitation[planet][0]:
+            effect = 'Negative'
+        elif planet in own_sign_lords:
+            own_signs = own_sign_lords[planet]
+            if isinstance(own_signs, list):
+                if sign in own_signs:
+                    effect = 'Positive'
+            else:
+                if sign == own_signs:
+                    effect = 'Positive'
+        
+        positions.append({
+            'Planet': planet,
+            'Lord': lord,
+            'Sublord': sublord,
+            'Degree': degree,
+            'House': house,
+            'Nakshatra': nakshatra,
+            'Effect': effect
+        })
+    
+    return positions
 # Check if a planet is retrograde
 def is_retrograde(planet_name, t, eph, earth):
     # Skip Sun and Moon as they are never retrograde
@@ -581,128 +551,96 @@ def get_planetary_positions(selected_date):
 def get_next_house_changes(selected_date):
     # Create a seed based on the date for consistent results
     date_seed = int(selected_date.strftime('%Y%m%d'))
-    local_random = random.Random()
-    local_random.seed(date_seed)
     
-    # FIX: Use explicit date comparison to ensure proper matching
-    # Check if selected_date is August 4, 2025
-    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
-        return [
-            {'Planet': 'Sun', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Magha', 'Time of Change': '2025-08-16 10:30'},
-            {'Planet': 'Moon', 'Current House': 6, 'Next House': 7, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Mula', 'Time of Change': '2025-08-06 14:15'},
-            {'Planet': 'Mercury', 'Current House': 3, 'Next House': 4, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Ashlesha', 'Time of Change': '2025-08-05 09:45'},
-            {'Planet': 'Venus', 'Current House': 3, 'Next House': 4, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Magha', 'Time of Change': '2025-08-08 16:20'},
-            {'Planet': 'Mars', 'Current House': 2, 'Next House': 3, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Ashlesha', 'Time of Change': '2025-08-05 11:30'},
-            {'Planet': 'Jupiter', 'Current House': 12, 'Next House': 1, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Rohini', 'Time of Change': '2025-08-07 13:45'},
-            {'Planet': 'Saturn', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-12 08:15'},
-            {'Planet': 'Rahu', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Ashwini', 'Time of Change': '2025-08-10 15:50'},
-            {'Planet': 'Ketu', 'Current House': 4, 'Next House': 5, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Chitra', 'Time of Change': '2025-08-09 12:25'},
-            {'Planet': 'Neptune', 'Current House': 10, 'Next House': 11, 'Degree at Change': 0.0, 'Nakshatra at Change': 'Revati', 'Time of Change': '2025-08-15 11:20'}
-        ]
-    else:
-        # For other dates, generate consistent data based on date seed
-        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
-        changes = []
+    # Always generate data for any date
+    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
+    changes = []
+    
+    for i, planet in enumerate(planets):
+        # Create a local random generator with the seed
+        local_random = random.Random()
+        local_random.seed(date_seed + i)
         
-        for i, planet in enumerate(planets):
-            # Use planet index and date seed to get consistent values
-            local_random.seed(date_seed + i)
-            
-            current_house = (date_seed + i) % 12 + 1
-            next_house = 1 if current_house == 12 else current_house + 1
-            degree_at_change = round(local_random.uniform(0, 30), 2)
-            
-            nakshatra_index = (date_seed + i * 2) % 27
-            nakshatra_at_change = nakshatras[nakshatra_index]
-            
-            # Generate a future date within 7 days
-            days_ahead = (date_seed + i) % 7 + 1
-            hours_ahead = (date_seed + i * 3) % 24
-            minutes_ahead = (date_seed + i * 5) % 60
-            change_datetime = selected_date + timedelta(days=days_ahead, hours=hours_ahead, minutes=minutes_ahead)
-            
-            changes.append({
-                'Planet': planet,
-                'Current House': current_house,
-                'Next House': next_house,
-                'Degree at Change': degree_at_change,
-                'Nakshatra at Change': nakshatra_at_change,
-                'Time of Change': change_datetime.strftime('%Y-%m-%d %H:%M')
-            })
+        current_house = (date_seed + i) % 12 + 1
+        next_house = 1 if current_house == 12 else current_house + 1
+        degree_at_change = round(local_random.uniform(0, 30), 2)
         
-        return changes
+        nakshatra_index = (date_seed + i * 2) % 27
+        nakshatra_at_change = nakshatras[nakshatra_index]
+        
+        # Generate a future date within 7 days
+        days_ahead = (date_seed + i) % 7 + 1
+        hours_ahead = (date_seed + i * 3) % 24
+        minutes_ahead = (date_seed + i * 5) % 60
+        change_datetime = selected_date + timedelta(days=days_ahead, hours=hours_ahead, minutes=minutes_ahead)
+        
+        changes.append({
+            'Planet': planet,
+            'Current House': current_house,
+            'Next House': next_house,
+            'Degree at Change': degree_at_change,
+            'Nakshatra at Change': nakshatra_at_change,
+            'Time of Change': change_datetime.strftime('%Y-%m-%d %H:%M')
+        })
+    
+    return changes
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
     # Create a seed based on the date for consistent results
     date_seed = int(selected_date.strftime('%Y%m%d'))
-    local_random = random.Random()
-    local_random.seed(date_seed)
     
-    # FIX: Use explicit date comparison to ensure proper matching
-    # Check if selected_date is August 4, 2025
-    if selected_date.year == 2025 and selected_date.month == 8 and selected_date.day == 4:
-        return [
-            {'Time': '09:15', 'Aspect': 'Moon in Jyeshtha (Scorpio)', 'Effect': 'Bearish', 'Description': 'Rahu aspects Moon (exact trine). Saturn-Rahu conjunction in Pisces creates volatility.'},
-            {'Time': '10:15', 'Aspect': 'Mercury in Pushya (Cancer)', 'Effect': 'Bearish', 'Description': 'Mercury in Pushya aspected by Rahu. Technical breakdown likely.'},
-            {'Time': '11:15', 'Aspect': 'Sun in Ashlesha (Cancer)', 'Effect': 'Bullish (short-lived)', 'Description': 'Sun in Ashlesha aspected by Rahu, but Jupiter\'s 7th aspect provides support.'},
-            {'Time': '12:15', 'Aspect': 'Venus in Ardra (Gemini)', 'Effect': 'Volatile', 'Description': 'Venus in Ardra under Rahu\'s 5th aspect. Profit-booking likely.'},
-            {'Time': '13:15', 'Aspect': 'Moon in Jyeshtha (Scorpio)', 'Effect': 'Bearish', 'Description': 'Moon debilitated in Scorpio. Ketu sublord intensifies reversals.'},
-            {'Time': '14:15', 'Aspect': 'Mars in Uttara Phalguni (Leo)', 'Effect': 'Bearish', 'Description': 'Mars in Uttara Phalguni aspected by Rahu. Banking sector pressure.'},
-            {'Time': '15:15', 'Aspect': 'Jupiter in Ardra (Gemini)', 'Effect': 'Mildly Bullish', 'Description': 'Jupiter in Ardra aspected by Saturn. Mild recovery attempt.'},
-            {'Time': '15:30', 'Aspect': 'Market Close', 'Effect': 'Bearish', 'Description': 'Moon at 23° Scorpio. Rahu influence dominates.'}
-        ]
-    else:
-        # For other dates, generate consistent data based on date seed
-        aspect_types = ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition']
-        planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
+    # Always generate data for any date
+    aspect_types = ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition']
+    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
+    
+    # Determine number of aspects based on date seed
+    num_aspects = (date_seed % 3) + 4  # Between 4-6 aspects
+    aspects = []
+    
+    for i in range(num_aspects):
+        # Create a local random generator with the seed
+        local_random = random.Random()
+        local_random.seed(date_seed + i)
         
-        # Determine number of aspects based on date seed
-        num_aspects = (date_seed % 3) + 4  # Between 4-6 aspects
-        aspects = []
+        # Generate time
+        hour = 9 + (date_seed + i) % 7  # Between 9-15
+        minute = (date_seed + i * 7) % 60
+        if hour == 15 and minute > 30:
+            minute = 30
+        time_str = f"{hour:02d}:{minute:02d}"
         
-        for i in range(num_aspects):
-            # Use aspect index and date seed to get consistent values
-            local_random.seed(date_seed + i)
-            
-            # Generate time
-            hour = 9 + (date_seed + i) % 7  # Between 9-15
-            minute = (date_seed + i * 7) % 60
-            if hour == 15 and minute > 30:
-                minute = 30
-            time_str = f"{hour:02d}:{minute:02d}"
-            
-            aspect_type = aspect_types[(date_seed + i) % len(aspect_types)]
-            planet1_index = (date_seed + i) % len(planets)
-            planet1 = planets[planet1_index]
-            planet2_index = (date_seed + i * 2) % (len(planets) - 1)
-            if planet2_index >= planet1_index:
-                planet2_index += 1
-            planet2 = planets[planet2_index]
-            
-            effect_options = ['Bullish', 'Bearish', 'Neutral', 'Volatile', 'Mildly Bullish']
-            effect = effect_options[(date_seed + i * 3) % len(effect_options)]
-            
-            if aspect_type == 'Conjunction':
-                description = f"Combining energies of {planet1} and {planet2}"
-            elif aspect_type == 'Sextile':
-                description = f"Harmonious opportunity between {planet1} and {planet2}"
-            elif aspect_type == 'Square':
-                description = f"Tension between {planet1} and {planet2}"
-            elif aspect_type == 'Trine':
-                description = f"Flowing energy between {planet1} and {planet2}"
-            else:  # Opposition
-                description = f"Polarity between {planet1} and {planet2}"
-            
-            aspects.append({
-                'Time': time_str,
-                'Aspect': f"{planet1} {aspect_type} {planet2}",
-                'Effect': effect,
-                'Description': description
-            })
+        aspect_type = aspect_types[(date_seed + i) % len(aspect_types)]
+        planet1_index = (date_seed + i) % len(planets)
+        planet1 = planets[planet1_index]
+        planet2_index = (date_seed + i * 2) % (len(planets) - 1)
+        if planet2_index >= planet1_index:
+            planet2_index += 1
+        planet2 = planets[planet2_index]
         
-        # Sort aspects by time
-        aspects.sort(key=lambda x: x['Time'])
-        return aspects
+        effect_options = ['Bullish', 'Bearish', 'Neutral', 'Volatile', 'Mildly Bullish']
+        effect = effect_options[(date_seed + i * 3) % len(effect_options)]
+        
+        if aspect_type == 'Conjunction':
+            description = f"Combining energies of {planet1} and {planet2}"
+        elif aspect_type == 'Sextile':
+            description = f"Harmonious opportunity between {planet1} and {planet2}"
+        elif aspect_type == 'Square':
+            description = f"Tension between {planet1} and {planet2}"
+        elif aspect_type == 'Trine':
+            description = f"Flowing energy between {planet1} and {planet2}"
+        else:  # Opposition
+            description = f"Polarity between {planet1} and {planet2}"
+        
+        aspects.append({
+            'Time': time_str,
+            'Aspect': f"{planet1} {aspect_type} {planet2}",
+            'Effect': effect,
+            'Description': description
+        })
+    
+    # Sort aspects by time
+    aspects.sort(key=lambda x: x['Time'])
+    return aspects
 # Function to create birth chart visualization
 def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     # Define zodiac signs and their degrees
