@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta, date
+import calendar
 
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
@@ -26,37 +27,265 @@ if 'planetary_options' not in st.session_state:
 # Create tabs
 tab1, tab2, tab3, tab4 = st.tabs(["Input Date", "Planetary Report", "Planetary Effect", "Upcoming Planetary Transit"])
 
-# Sample data for planetary events
-planetary_data = {
-    'Date': pd.date_range(start='2025-08-01', end='2025-08-31'),
-    'Mercury Retro': [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
-    'Moon Phase': ['New Moon', 'Waxing Crescent', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'Waning Crescent', 'New Moon'],
-    'Moon Transit': ['Cancer', 'Leo', 'Leo', 'Virgo', 'Virgo', 'Libra', 'Libra', 'Scorpio', 'Scorpio', 'Sagittarius', 'Sagittarius', 'Capricorn', 'Capricorn', 'Aquarius', 'Aquarius', 'Pisces', 'Pisces', 'Aries', 'Aries', 'Taurus', 'Taurus', 'Gemini', 'Gemini', 'Cancer', 'Cancer', 'Leo', 'Leo', 'Virgo', 'Virgo', 'Libra', 'Libra'],
-    'Jupiter Trine Saturn': [True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
-    'Mars Square Pluto': [False, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True],
-    'Venus Sextile Jupiter': [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
-    'Bullish': [0.7, 0.5, 0.4, 0.6, 0.7, 0.8, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.7, 0.6, 0.5, 0.6, 0.7, 0.8, 0.9, 0.8, 0.7, 0.6, 0.8],
-    'Bearish': [0.3, 0.5, 0.6, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3, 0.4, 0.2]
-}
+# Function to generate moon phases for any month
+def generate_moon_phases(year, month):
+    # This is a simplified version - in reality, moon phases need complex calculations
+    # For demo purposes, we'll approximate
+    phases = []
+    
+    # New moon (approximate)
+    new_moon_day = 1
+    phases.append({
+        'name': 'New Moon',
+        'date': f'{year}-{month:02d}-{new_moon_day:02d}',
+        'effect': 'Bullish',
+        'description': 'New beginnings, fresh momentum, ideal for starting new projects'
+    })
+    
+    # First quarter (approximate)
+    first_quarter_day = 7
+    phases.append({
+        'name': 'First Quarter',
+        'date': f'{year}-{month:02d}-{first_quarter_day:02d}',
+        'effect': 'Neutral',
+        'description': 'Decision point, overcoming challenges, building momentum'
+    })
+    
+    # Full moon (approximate)
+    full_moon_day = 15
+    phases.append({
+        'name': 'Full Moon',
+        'date': f'{year}-{month:02d}-{full_moon_day:02d}',
+        'effect': 'Bearish',
+        'description': 'Emotional peaks, culmination, profit-taking, increased volatility'
+    })
+    
+    # Last quarter (approximate)
+    last_quarter_day = 23
+    phases.append({
+        'name': 'Last Quarter',
+        'date': f'{year}-{month:02d}-{last_quarter_day:02d}',
+        'effect': 'Neutral',
+        'description': 'Release, letting go, reflection, preparation for new cycle'
+    })
+    
+    return phases
 
-df = pd.DataFrame(planetary_data)
+# Function to generate moon transits for any month
+def generate_moon_transits(year, month):
+    # Simplified moon transit cycle (approximately 2.5 days per sign)
+    signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+             'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+    
+    # Get number of days in month
+    days_in_month = calendar.monthrange(year, month)[1]
+    
+    transits = []
+    current_sign_index = 0
+    
+    for day in range(1, days_in_month + 1):
+        # Change sign every 2-3 days
+        if day % 3 == 1 and day > 1:
+            current_sign_index = (current_sign_index + 1) % 12
+        
+        transits.append({
+            'Date': f'{year}-{month:02d}-{day:02d}',
+            'Moon Transit': signs[current_sign_index]
+        })
+    
+    return transits
 
-# Detailed planetary data
+# Function to get retrograde planets for any date
+def get_retrograde_planets(selected_date):
+    retrogrades = []
+    
+    # Mercury Retrograde periods
+    mercury_periods = [
+        {'start': '2025-01-01', 'end': '2025-01-25'},
+        {'start': '2025-05-18', 'end': '2025-06-11'},
+        {'start': '2025-09-09', 'end': '2025-10-02'},
+        {'start': '2026-01-02', 'end': '2026-01-26'},
+        {'start': '2026-05-19', 'end': '2026-06-12'},
+        {'start': '2026-09-10', 'end': '2026-10-03'}
+    ]
+    
+    # Venus Retrograde periods
+    venus_periods = [
+        {'start': '2025-03-22', 'end': '2025-04-30'},
+        {'start': '2026-03-23', 'end': '2026-05-01'}
+    ]
+    
+    # Mars Retrograde periods
+    mars_periods = [
+        {'start': '2024-12-06', 'end': '2025-02-23'},
+        {'start': '2025-07-11', 'end': '2025-09-29'},
+        {'start': '2026-12-07', 'end': '2027-02-24'}
+    ]
+    
+    # Jupiter Retrograde periods
+    jupiter_periods = [
+        {'start': '2025-11-04', 'end': '2026-03-14'},
+        {'start': '2026-11-05', 'end': '2027-03-15'}
+    ]
+    
+    # Saturn Retrograde periods
+    saturn_periods = [
+        {'start': '2025-06-29', 'end': '2025-11-15'},
+        {'start': '2026-06-29', 'end': '2026-11-15'}
+    ]
+    
+    # Uranus Retrograde periods
+    uranus_periods = [
+        {'start': '2025-08-29', 'end': '2026-01-27'},
+        {'start': '2026-08-29', 'end': '2027-01-27'}
+    ]
+    
+    # Neptune Retrograde periods
+    neptune_periods = [
+        {'start': '2025-07-02', 'end': '2025-12-08'},
+        {'start': '2026-07-02', 'end': '2026-12-08'}
+    ]
+    
+    # Pluto Retrograde periods
+    pluto_periods = [
+        {'start': '2025-05-02', 'end': '2025-10-11'},
+        {'start': '2026-05-02', 'end': '2026-10-11'}
+    ]
+    
+    # Check if selected date falls within any retrograde period
+    for period in mercury_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Mercury Retrograde')
+    
+    for period in venus_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Venus Retrograde')
+    
+    for period in mars_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Mars Retrograde')
+    
+    for period in jupiter_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Jupiter Retrograde')
+    
+    for period in saturn_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Saturn Retrograde')
+    
+    for period in uranus_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Uranus Retrograde')
+    
+    for period in neptune_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Neptune Retrograde')
+    
+    for period in pluto_periods:
+        if datetime.strptime(period['start'], '%Y-%m-%d') <= selected_date <= datetime.strptime(period['end'], '%Y-%m-%d'):
+            retrogrades.append('Pluto Retrograde')
+    
+    return retrogrades
+
+# Function to generate planetary aspects for any month
+def generate_planetary_aspects(year, month):
+    # Simplified aspect generation for demo
+    aspects = []
+    
+    # Generate some example aspects
+    aspects.append({
+        'name': 'Jupiter Trine Saturn',
+        'start': f'{year}-{month:02d}-01',
+        'end': f'{year}-{month:02d}-15',
+        'effect': 'Bullish',
+        'description': 'Growth with discipline, balanced expansion'
+    })
+    
+    aspects.append({
+        'name': 'Mars Square Pluto',
+        'start': f'{year}-{month:02d}-03',
+        'end': f'{year}-{month:02d}-31',
+        'effect': 'Bearish',
+        'description': 'Power struggles, institutional conflicts'
+    })
+    
+    if month == 8:  # Special case for August
+        aspects.append({
+            'name': 'Venus Sextile Jupiter',
+            'start': f'{year}-{month:02d}-04',
+            'end': f'{year}-{month:02d}-04',
+            'effect': 'Bullish',
+            'description': 'Positive social mood, consumer spending'
+        })
+    
+    aspects.append({
+        'name': 'Sun Oppose Saturn',
+        'start': f'{year}-{month:02d}-13',
+        'end': f'{year}-{month:02d}-13',
+        'effect': 'Bearish',
+        'description': 'Authority challenges, limitations'
+    })
+    
+    aspects.append({
+        'name': 'Mercury Conjunct Venus',
+        'start': f'{year}-{month:02d}-19',
+        'end': f'{year}-{month:02d}-19',
+        'effect': 'Bullish',
+        'description': 'Harmonious communication, financial discussions'
+    })
+    
+    return aspects
+
+# Tab 1: Input Date
+with tab1:
+    st.header("Select Date for Report")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        # Create date selection with year, month, and day
+        selected_year = st.selectbox("Select Year", range(2020, 2031), index=5)
+        selected_month = st.selectbox("Select Month", range(1, 13), index=7)
+        
+        # Get days in selected month
+        days_in_month = calendar.monthrange(selected_year, selected_month)[1]
+        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=3)
+        
+        selected_date = date(selected_year, selected_month, selected_day)
+        st.session_state.selected_date = selected_date
+        
+        st.markdown(f"**Selected Date:** {selected_date.strftime('%Y-%m-%d')}")
+        
+        if st.button("Generate Report"):
+            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')}")
+
+# Generate dynamic data based on selected date
+selected_year = st.session_state.selected_date.year
+selected_month = st.session_state.selected_date.month
+
+# Generate moon phases for selected month
+moon_phases = generate_moon_phases(selected_year, selected_month)
+
+# Generate moon transits for selected month
+moon_transits = generate_moon_transits(selected_year, selected_month)
+moon_transit_df = pd.DataFrame(moon_transits)
+moon_transit_df['Date'] = pd.to_datetime(moon_transit_df['Date'])
+
+# Generate planetary aspects for selected month
+planetary_aspects = generate_planetary_aspects(selected_year, selected_month)
+
+# Get retrograde planets for selected date
+retrograde_planets = get_retrograde_planets(datetime.combine(st.session_state.selected_date, datetime.min.time()))
+
+# Create planetary details dictionary with dynamic data
 planetary_details = {
     'Planetary Transit': [
-        {'name': 'Mercury in Virgo', 'start': '2025-07-25', 'end': '2025-08-14', 'effect': 'Bullish', 'description': 'Analytical clarity, communication efficiency'},
-        {'name': 'Venus in Libra', 'start': '2025-07-31', 'end': '2025-09-06', 'effect': 'Bullish', 'description': 'Diplomatic stability, social harmony'},
-        {'name': 'Mars in Gemini', 'start': '2025-07-20', 'end': '2025-09-04', 'effect': 'Bearish', 'description': 'Volatile energy, scattered focus'},
-        {'name': 'Jupiter in Gemini', 'start': '2025-05-25', 'end': '2025-06-09', 'effect': 'Bullish', 'description': 'Expansion in communication, learning'},
-        {'name': 'Saturn in Pisces', 'start': '2023-03-07', 'end': '2025-05-24', 'effect': 'Bearish', 'description': 'Restructuring, spiritual challenges'}
+        {'name': 'Mercury in Virgo', 'start': f'{selected_year}-{selected_month:02d}-25', 'end': f'{selected_year}-{selected_month:02d}-14', 'effect': 'Bullish', 'description': 'Analytical clarity, communication efficiency'},
+        {'name': 'Venus in Libra', 'start': f'{selected_year}-{selected_month:02d}-31', 'end': f'{selected_year}-{selected_month:02d}-06', 'effect': 'Bullish', 'description': 'Diplomatic stability, social harmony'},
+        {'name': 'Mars in Gemini', 'start': f'{selected_year}-{selected_month:02d}-20', 'end': f'{selected_year}-{selected_month:02d}-04', 'effect': 'Bearish', 'description': 'Volatile energy, scattered focus'},
+        {'name': 'Jupiter in Gemini', 'start': f'{selected_year}-{selected_month:02d}-25', 'end': f'{selected_year}-{selected_month:02d}-09', 'effect': 'Bullish', 'description': 'Expansion in communication, learning'},
+        {'name': 'Saturn in Pisces', 'start': f'{selected_year}-{selected_month:02d}-07', 'end': f'{selected_year}-{selected_month:02d}-24', 'effect': 'Bearish', 'description': 'Restructuring, spiritual challenges'}
     ],
-    'Planetary Aspect': [
-        {'name': 'Jupiter Trine Saturn', 'start': '2025-08-01', 'end': '2025-08-15', 'effect': 'Bullish', 'description': 'Growth with discipline, balanced expansion'},
-        {'name': 'Mars Square Pluto', 'start': '2025-08-03', 'end': '2025-08-31', 'effect': 'Bearish', 'description': 'Power struggles, institutional conflicts'},
-        {'name': 'Venus Sextile Jupiter', 'start': '2025-08-04', 'end': '2025-08-04', 'effect': 'Bullish', 'description': 'Positive social mood, consumer spending'},
-        {'name': 'Sun Oppose Saturn', 'start': '2025-08-13', 'end': '2025-08-13', 'effect': 'Bearish', 'description': 'Authority challenges, limitations'},
-        {'name': 'Mercury Conjunct Venus', 'start': '2025-08-19', 'end': '2025-08-19', 'effect': 'Bullish', 'description': 'Harmonious communication, financial discussions'}
-    ],
+    'Planetary Aspect': planetary_aspects,
     'Planetary Retrograde': [
         {'name': 'Mercury Retrograde', 'start': '2025-01-01', 'end': '2025-01-25', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
         {'name': 'Mercury Retrograde', 'start': '2025-05-18', 'end': '2025-06-11', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
@@ -70,13 +299,7 @@ planetary_details = {
         {'name': 'Neptune Retrograde', 'start': '2025-07-02', 'end': '2025-12-08', 'effect': 'Bearish', 'description': 'Uncertainty, deception, spiritual confusion'},
         {'name': 'Pluto Retrograde', 'start': '2025-05-02', 'end': '2025-10-11', 'effect': 'Bullish', 'description': 'Transformational opportunities, deep changes'}
     ],
-    'Moon Phases': [
-        {'name': 'New Moon', 'date': '2025-08-01', 'effect': 'Bullish', 'description': 'New beginnings, fresh momentum, ideal for starting new projects'},
-        {'name': 'First Quarter', 'date': '2025-08-08', 'effect': 'Neutral', 'description': 'Decision point, overcoming challenges, building momentum'},
-        {'name': 'Full Moon', 'date': '2025-08-15', 'effect': 'Bearish', 'description': 'Emotional peaks, culmination, profit-taking, increased volatility'},
-        {'name': 'Last Quarter', 'date': '2025-08-23', 'effect': 'Neutral', 'description': 'Release, letting go, reflection, preparation for new cycle'},
-        {'name': 'New Moon', 'date': '2025-08-30', 'effect': 'Bullish', 'description': 'Renewed optimism, fresh energy, new opportunities'}
-    ]
+    'Moon Phases': moon_phases
 }
 
 # Planetary effects on markets
@@ -160,7 +383,7 @@ planetary_effects = {
     }
 }
 
-# Intraday moon aspects
+# Intraday moon aspects (simplified for demo)
 intraday_moon_aspects = {
     '2025-08-04': [
         {'time': '09:30', 'aspect': 'Moon Trine Sun', 'effect': 'Bullish', 'description': 'Confident market open, positive sentiment'},
@@ -175,24 +398,6 @@ intraday_moon_aspects = {
         {'time': '16:00', 'aspect': 'Moon Sextile Venus', 'effect': 'Bullish', 'description': 'Harmony, social connections, positive close'}
     ]
 }
-
-# Tab 1: Input Date
-with tab1:
-    st.header("Select Date for Report")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col2:
-        selected_date = st.date_input(
-            "Select a date:",
-            value=st.session_state.selected_date,
-            min_value=date(2025, 8, 1),
-            max_value=date(2025, 8, 31),
-            format="YYYY-MM-DD"
-        )
-        st.session_state.selected_date = selected_date
-        
-        if st.button("Generate Report"):
-            st.success(f"Report will be generated for {selected_date.strftime('%Y-%m-%d')}")
 
 # Tab 2: Planetary Report
 with tab2:
@@ -261,11 +466,8 @@ with tab3:
             active_events.append(aspect['name'])
     
     # Check planetary retrogrades
-    for retrograde in planetary_details['Planetary Retrograde']:
-        start_date = datetime.strptime(retrograde['start'], '%Y-%m-%d')
-        end_date = datetime.strptime(retrograde['end'], '%Y-%m-%d')
-        if start_date <= selected_datetime <= end_date:
-            active_events.append(retrograde['name'])
+    for retrograde in retrograde_planets:
+        active_events.append(retrograde)
     
     # Check moon phases
     for moon in planetary_details['Moon Phases']:
@@ -424,8 +626,6 @@ with tab4:
         intraday_date = st.date_input(
             "Select date for intraday moon aspects:",
             value=st.session_state.selected_date,
-            min_value=date(2025, 8, 1),
-            max_value=date(2025, 8, 5),
             format="YYYY-MM-DD",
             key="intraday_date"
         )
@@ -478,14 +678,11 @@ with tab4:
         # Create a chart showing moon transit through zodiac signs
         fig = go.Figure()
         
-        # Get unique dates and moon transits
-        moon_transit_data = df[['Date', 'Moon Transit']].copy()
-        
         # Create a categorical plot for moon signs
-        moon_signs = moon_transit_data['Moon Transit'].unique()
+        moon_signs = moon_transit_df['Moon Transit'].unique()
         
         for i, sign in enumerate(moon_signs):
-            sign_data = moon_transit_data[moon_transit_data['Moon Transit'] == sign]
+            sign_data = moon_transit_df[moon_transit_df['Moon Transit'] == sign]
             fig.add_trace(go.Scatter(
                 x=sign_data['Date'],
                 y=[i] * len(sign_data),
@@ -498,7 +695,7 @@ with tab4:
             ))
         
         fig.update_layout(
-            title="Moon Transit Through Zodiac Signs - August 2025",
+            title=f"Moon Transit Through Zodiac Signs - {selected_year} {calendar.month_name[selected_month]}",
             xaxis_title="Date",
             yaxis=dict(
                 tickmode='array',
@@ -512,4 +709,4 @@ with tab4:
         
         # Show moon transit data in a table
         st.markdown("### Moon Transit Schedule")
-        st.dataframe(moon_transit_data, use_container_width=True)
+        st.dataframe(moon_transit_df, use_container_width=True)
