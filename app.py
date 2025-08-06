@@ -18,7 +18,7 @@ st.markdown("---")
 
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = date(2025, 8, 4)
+    st.session_state.selected_date = date(2025, 8, 6)
 if 'selected_time' not in st.session_state:
     st.session_state.selected_time = time(9, 15)
 if 'selected_city' not in st.session_state:
@@ -134,25 +134,58 @@ def initialize_ephemeris():
     earth = eph['earth']
     return eph, ts, earth
 
-# Planetary speeds (degrees per day)
+# Planetary speeds (degrees per day) - more accurate values
 planet_speeds = {
-    'Sun': 1.0,
-    'Moon': 13.0,
-    'Mercury': 1.0,
-    'Venus': 1.0,
-    'Mars': 0.5,
-    'Jupiter': 0.08,
-    'Saturn': 0.03,
-    'Rahu': -0.05,  # retrograde
-    'Ketu': -0.05,  # retrograde
-    'Neptune': 0.03
+    'Sun': 0.9856,  # ~1 degree per day
+    'Moon': 13.1764,  # ~13 degrees per day
+    'Mercury': 1.0,  # varies but average ~1 degree per day
+    'Venus': 0.6,  # varies but average ~0.6 degrees per day
+    'Mars': 0.5,  # varies but average ~0.5 degrees per day
+    'Jupiter': 0.083,  # ~1 degree every 12 days
+    'Saturn': 0.033,  # ~1 degree every 30 days
+    'Rahu': -0.053,  # retrograde, ~1 degree every 19 days
+    'Ketu': -0.053,  # retrograde, ~1 degree every 19 days
+    'Neptune': 0.006,  # very slow
+    'Uranus': 0.004,  # very slow
+    'Pluto': 0.004,  # very slow
 }
 
-# Known planetary positions for August 6, 2025 (from the provided table)
+# Retrograde periods based on the provided data
+retrograde_periods = {
+    'Mercury': [
+        {'start': '2025-03-15', 'end': '2025-04-07', 'duration': '23 days'},
+        {'start': '2025-07-07', 'end': '2025-07-31', 'duration': '24 days'},
+        {'start': '2025-11-02', 'end': '2025-11-22', 'duration': '20 days'},
+    ],
+    'Venus': [
+        {'start': '2025-03-02', 'end': '2025-04-13', 'duration': '42 days'},
+    ],
+    'Mars': [
+        {'start': '2024-12-06', 'end': '2025-02-23', 'duration': '79 days'},
+        {'start': '2025-07-11', 'end': '2025-09-29', 'duration': '80 days'},
+    ],
+    'Jupiter': [
+        {'start': '2025-11-04', 'end': '2026-03-14', 'duration': '130 days'},
+    ],
+    'Saturn': [
+        {'start': '2025-06-29', 'end': '2025-11-15', 'duration': '139 days'},
+    ],
+    'Uranus': [
+        {'start': '2025-08-29', 'end': '2026-01-27', 'duration': '151 days'},
+    ],
+    'Neptune': [
+        {'start': '2025-07-02', 'end': '2025-12-08', 'duration': '159 days'},
+    ],
+    'Pluto': [
+        {'start': '2025-05-02', 'end': '2025-10-11', 'duration': '162 days'},
+    ]
+}
+
+# Corrected planetary positions for August 6, 2025 (based on user feedback)
 def get_known_planetary_positions():
     return [
         {'Planet': 'Sun', 'Sign': 'Cancer', 'Degree': 20.0, 'Nakshatra': 'Ashlesha', 'Theme': 'Soul Power'},
-        {'Planet': 'Moon', 'Sign': 'Scorpio', 'Degree': 23.0, 'Nakshatra': 'Jyeshtha', 'Theme': 'Emotional Intensity'},
+        {'Planet': 'Moon', 'Sign': 'Sagittarius', 'Degree': 12.16, 'Nakshatra': 'Mula', 'Theme': 'Emotional Intensity'},
         {'Planet': 'Mercury', 'Sign': 'Cancer', 'Degree': 10.0, 'Nakshatra': 'Pushya', 'Theme': 'Communication'},
         {'Planet': 'Venus', 'Sign': 'Gemini', 'Degree': 15.0, 'Nakshatra': 'Ardra', 'Theme': 'Relationships'},
         {'Planet': 'Mars', 'Sign': 'Leo', 'Degree': 5.0, 'Nakshatra': 'Magha', 'Theme': 'Action'},
@@ -477,107 +510,13 @@ def get_retrograde_planets_calculated(selected_date, selected_time, selected_cit
 def get_retrograde_planets_fallback(selected_date):
     retrogrades = []
     
-    # Mercury Retrograde periods
-    mercury_periods = [
-        {'start': '2025-01-01', 'end': '2025-01-25'},
-        {'start': '2025-05-18', 'end': '2025-06-11'},
-        {'start': '2025-09-09', 'end': '2025-10-02'},
-        {'start': '2026-01-02', 'end': '2026-01-26'},
-        {'start': '2026-05-19', 'end': '2026-06-12'},
-        {'start': '2026-09-10', 'end': '2026-10-03'}
-    ]
-    
-    # Venus Retrograde periods
-    venus_periods = [
-        {'start': '2025-03-22', 'end': '2025-04-30'},
-        {'start': '2026-03-23', 'end': '2026-05-01'}
-    ]
-    
-    # Mars Retrograde periods
-    mars_periods = [
-        {'start': '2024-12-06', 'end': '2025-02-23'},
-        {'start': '2025-07-11', 'end': '2025-09-29'},
-        {'start': '2026-12-07', 'end': '2027-02-24'}
-    ]
-    
-    # Jupiter Retrograde periods
-    jupiter_periods = [
-        {'start': '2025-11-04', 'end': '2026-03-14'},
-        {'start': '2026-11-05', 'end': '2027-03-15'}
-    ]
-    
-    # Saturn Retrograde periods
-    saturn_periods = [
-        {'start': '2025-06-29', 'end': '2025-11-15'},
-        {'start': '2026-06-29', 'end': '2026-11-15'}
-    ]
-    
-    # Uranus Retrograde periods
-    uranus_periods = [
-        {'start': '2025-08-29', 'end': '2026-01-27'},
-        {'start': '2026-08-29', 'end': '2027-01-27'}
-    ]
-    
-    # Neptune Retrograde periods
-    neptune_periods = [
-        {'start': '2025-07-02', 'end': '2025-12-08'},
-        {'start': '2026-07-02', 'end': '2026-12-08'}
-    ]
-    
-    # Pluto Retrograde periods
-    pluto_periods = [
-        {'start': '2025-05-02', 'end': '2025-10-11'},
-        {'start': '2026-05-02', 'end': '2026-10-11'}
-    ]
-    
-    # Check if selected date falls within any retrograde period
-    for period in mercury_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Mercury Retrograde')
-    
-    for period in venus_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Venus Retrograde')
-    
-    for period in mars_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Mars Retrograde')
-    
-    for period in jupiter_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Jupiter Retrograde')
-    
-    for period in saturn_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Saturn Retrograde')
-    
-    for period in uranus_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Uranus Retrograde')
-    
-    for period in neptune_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Neptune Retrograde')
-    
-    for period in pluto_periods:
-        start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
-        if start_date <= selected_date <= end_date:
-            retrogrades.append('Pluto Retrograde')
+    # Check each planet's retrograde periods
+    for planet, periods in retrograde_periods.items():
+        for period in periods:
+            start_date = datetime.strptime(period['start'], '%Y-%m-%d').date()
+            end_date = datetime.strptime(period['end'], '%Y-%m-%d').date()
+            if start_date <= selected_date <= end_date:
+                retrogrades.append(f'{planet} Retrograde')
     
     return retrogrades
 
@@ -942,7 +881,7 @@ def get_all_planetary_transits(year):
         'From': 'Pisces',
         'To': 'Aries',
         'Start': f'{year}-03-01',
-        'End': f'{year}-03-16',
+        'End': f'{year}-03-15',
         'Effect': 'Bullish',
         'Description': 'Assertive communication, new ideas'
     })
@@ -951,7 +890,7 @@ def get_all_planetary_transits(year):
         'Event': 'Direct',
         'From': 'Aries',
         'To': 'Taurus',
-        'Start': f'{year}-03-16',
+        'Start': f'{year}-03-15',
         'End': f'{year}-05-03',
         'Effect': 'Bullish',
         'Description': 'Practical thinking, financial focus'
@@ -961,8 +900,8 @@ def get_all_planetary_transits(year):
         'Event': 'Retrograde',
         'From': 'Taurus',
         'To': 'Aries',
-        'Start': f'{year}-05-18',
-        'End': f'{year}-06-11',
+        'Start': f'{year}-03-15',
+        'End': f'{year}-04-07',
         'Effect': 'Bearish',
         'Description': 'Communication issues, tech problems'
     })
@@ -971,7 +910,7 @@ def get_all_planetary_transits(year):
         'Event': 'Direct',
         'From': 'Aries',
         'To': 'Taurus',
-        'Start': f'{year}-06-11',
+        'Start': f'{year}-04-07',
         'End': f'{year}-06-26',
         'Effect': 'Bullish',
         'Description': 'Clear thinking, practical decisions'
@@ -982,26 +921,26 @@ def get_all_planetary_transits(year):
         'From': 'Taurus',
         'To': 'Gemini',
         'Start': f'{year}-06-26',
-        'End': f'{year}-07-10',
+        'End': f'{year}-07-07',
         'Effect': 'Bullish',
         'Description': 'Social communication, networking'
     })
     transits.append({
         'Planet': 'Mercury',
-        'Event': 'Direct',
+        'Event': 'Retrograde',
         'From': 'Gemini',
         'To': 'Cancer',
-        'Start': f'{year}-07-10',
-        'End': f'{year}-07-25',
-        'Effect': 'Bullish',
-        'Description': 'Emotional communication, family focus'
+        'Start': f'{year}-07-07',
+        'End': f'{year}-07-31',
+        'Effect': 'Bearish',
+        'Description': 'Communication breakdowns, tech issues'
     })
     transits.append({
         'Planet': 'Mercury',
         'Event': 'Direct',
         'From': 'Cancer',
         'To': 'Leo',
-        'Start': f'{year}-07-25',
+        'Start': f'{year}-07-31',
         'End': f'{year}-09-09',
         'Effect': 'Bullish',
         'Description': 'Creative expression, leadership'
@@ -1042,16 +981,26 @@ def get_all_planetary_transits(year):
         'From': 'Virgo',
         'To': 'Libra',
         'Start': f'{year}-11-01',
-        'End': f'{year}-11-19',
+        'End': f'{year}-11-02',
         'Effect': 'Bullish',
         'Description': 'Diplomatic communication, social harmony'
     })
     transits.append({
         'Planet': 'Mercury',
-        'Event': 'Direct',
+        'Event': 'Retrograde',
         'From': 'Libra',
         'To': 'Scorpio',
-        'Start': f'{year}-11-19',
+        'Start': f'{year}-11-02',
+        'End': f'{year}-11-22',
+        'Effect': 'Bearish',
+        'Description': 'Communication issues, tech problems'
+    })
+    transits.append({
+        'Planet': 'Mercury',
+        'Event': 'Direct',
+        'From': 'Scorpio',
+        'To': 'Sagittarius',
+        'Start': f'{year}-11-22',
         'End': f'{year}-12-07',
         'Effect': 'Bullish',
         'Description': 'Deep communication, investigation'
@@ -1059,8 +1008,8 @@ def get_all_planetary_transits(year):
     transits.append({
         'Planet': 'Mercury',
         'Event': 'Direct',
-        'From': 'Scorpio',
-        'To': 'Sagittarius',
+        'From': 'Sagittarius',
+        'To': 'Capricorn',
         'Start': f'{year}-12-07',
         'End': f'{year}-12-26',
         'Effect': 'Bullish',
@@ -1094,7 +1043,7 @@ def get_all_planetary_transits(year):
         'From': 'Pisces',
         'To': 'Aries',
         'Start': f'{year}-02-20',
-        'End': f'{year}-03-16',
+        'End': f'{year}-03-02',
         'Effect': 'Bullish',
         'Description': 'Passionate relationships, bold actions'
     })
@@ -1103,8 +1052,8 @@ def get_all_planetary_transits(year):
         'Event': 'Retrograde',
         'From': 'Aries',
         'To': 'Pisces',
-        'Start': f'{year}-03-22',
-        'End': f'{year}-04-30',
+        'Start': f'{year}-03-02',
+        'End': f'{year}-04-13',
         'Effect': 'Bearish',
         'Description': 'Relationship issues, financial reevaluation'
     })
@@ -1113,7 +1062,7 @@ def get_all_planetary_transits(year):
         'Event': 'Direct',
         'From': 'Pisces',
         'To': 'Aries',
-        'Start': f'{year}-04-30',
+        'Start': f'{year}-04-13',
         'End': f'{year}-05-23',
         'Effect': 'Bullish',
         'Description': 'Renewed passion, relationship clarity'
@@ -1256,7 +1205,7 @@ def get_all_planetary_transits(year):
         'From': 'Virgo',
         'To': 'Libra',
         'Start': f'{year}-06-27',
-        'End': f'{year}-08-08',
+        'End': f'{year}-07-11',
         'Effect': 'Bullish',
         'Description': 'Diplomatic action, relationship focus'
     })
@@ -1358,7 +1307,7 @@ def get_all_planetary_transits(year):
         'From': 'Libra',
         'To': 'Scorpio',
         'Start': f'{year}-10-09',
-        'End': f'{year}-11-20',
+        'End': f'{year}-11-04',
         'Effect': 'Bullish',
         'Description': 'Growth in depth, transformation'
     })
@@ -1476,7 +1425,7 @@ def get_all_planetary_transits(year):
         'From': 'Pisces',
         'To': 'Aries',
         'Start': f'{year}-01-01',
-        'End': f'{year}-05-03',
+        'End': f'{year}-05-02',
         'Effect': 'Bearish',
         'Description': 'Spiritual confusion, illusion'
     })
@@ -1485,7 +1434,17 @@ def get_all_planetary_transits(year):
         'Event': 'Retrograde',
         'From': 'Aries',
         'To': 'Pisces',
-        'Start': f'{year}-05-03',
+        'Start': f'{year}-05-02',
+        'End': f'{year}-07-02',
+        'Effect': 'Bearish',
+        'Description': 'Uncertainty, deception, spiritual confusion'
+    })
+    transits.append({
+        'Planet': 'Neptune',
+        'Event': 'Direct',
+        'From': 'Pisces',
+        'To': 'Aries',
+        'Start': f'{year}-07-02',
         'End': f'{year}-12-08',
         'Effect': 'Bearish',
         'Description': 'Uncertainty, deception, spiritual confusion'
@@ -1559,7 +1518,7 @@ with tab1:
         
         # Get days in selected month
         days_in_month = calendar.monthrange(selected_year, selected_month)[1]
-        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=3)  # Changed default to 4th day
+        selected_day = st.selectbox("Select Day", range(1, days_in_month + 1), index=5)  # Changed default to 6th day
         
         selected_date = date(selected_year, selected_month, selected_day)
         st.session_state.selected_date = selected_date
@@ -1636,10 +1595,10 @@ planetary_details = {
     ],
     'Planetary Aspect': planetary_aspects,
     'Planetary Retrograde': [
-        {'name': 'Mercury Retrograde', 'start': '2025-01-01', 'end': '2025-01-25', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
-        {'name': 'Mercury Retrograde', 'start': '2025-05-18', 'end': '2025-06-11', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
-        {'name': 'Mercury Retrograde', 'start': '2025-09-09', 'end': '2025-10-02', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
-        {'name': 'Venus Retrograde', 'start': '2025-03-22', 'end': '2025-04-30', 'effect': 'Bearish', 'description': 'Relationship issues, financial reevaluation'},
+        {'name': 'Mercury Retrograde', 'start': '2025-03-15', 'end': '2025-04-07', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Mercury Retrograde', 'start': '2025-07-07', 'end': '2025-07-31', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Mercury Retrograde', 'start': '2025-11-02', 'end': '2025-11-22', 'effect': 'Bearish', 'description': 'Communication issues, tech volatility, delays'},
+        {'name': 'Venus Retrograde', 'start': '2025-03-02', 'end': '2025-04-13', 'effect': 'Bearish', 'description': 'Relationship issues, financial reevaluation'},
         {'name': 'Mars Retrograde', 'start': '2024-12-06', 'end': '2025-02-23', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
         {'name': 'Mars Retrograde', 'start': '2025-07-11', 'end': '2025-09-29', 'effect': 'Bearish', 'description': 'Energy drain, conflicts, delays in action'},
         {'name': 'Jupiter Retrograde', 'start': '2025-11-04', 'end': '2026-03-14', 'effect': 'Bearish', 'description': 'Growth slowdown, reassessment of beliefs'},
