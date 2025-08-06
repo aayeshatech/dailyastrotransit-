@@ -8,11 +8,14 @@ import calendar
 import random
 import math
 import pytz
+
 # Set page configuration
 st.set_page_config(page_title="Astro Transit For Daily Transit", layout="wide")
+
 # Create header
 st.markdown("<h1 style='text-align: center; color: #1E88E5;'>Astro Transit For Daily Transit</h1>", unsafe_allow_html=True)
 st.markdown("---")
+
 # Initialize session state variables
 if 'selected_date' not in st.session_state:
     st.session_state.selected_date = date(2025, 8, 4)
@@ -27,6 +30,7 @@ if 'planetary_options' not in st.session_state:
         'Planetary Retrograde': True,
         'Moon Phases': True
     }
+
 # City coordinates for location-based calculations
 city_coordinates = {
     "Mumbai, India": (19.0760, 72.8777),
@@ -40,6 +44,7 @@ city_coordinates = {
     "Sydney, Australia": (-33.8688, 151.2093),
     "Dubai, UAE": (25.2048, 55.2708),
 }
+
 # Zodiac signs and nakshatras
 zodiac_signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
                 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
@@ -50,12 +55,14 @@ nakshatras = [
     'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
     'Uttara Bhadrapada', 'Revati'
 ]
+
 # Sign lords
 sign_lords = {
     'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
     'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
     'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
 }
+
 # Nakshatra lords
 nakshatra_lords = {
     'Ashwini': 'Ketu', 'Bharani': 'Venus', 'Krittika': 'Sun', 'Rohini': 'Moon',
@@ -66,6 +73,7 @@ nakshatra_lords = {
     'Uttara Ashadha': 'Sun', 'Shravana': 'Moon', 'Dhanishta': 'Mars', 'Shatabhisha': 'Rahu',
     'Purva Bhadrapada': 'Jupiter', 'Uttara Bhadrapada': 'Saturn', 'Revati': 'Mercury'
 }
+
 # Exaltation and debilitation signs
 exaltation = {
     'Sun': ('Aries', 10),
@@ -76,6 +84,7 @@ exaltation = {
     'Jupiter': ('Cancer', 5),
     'Saturn': ('Libra', 20),
 }
+
 debilitation = {
     'Sun': ('Libra', 10),
     'Moon': ('Scorpio', 3),
@@ -85,6 +94,7 @@ debilitation = {
     'Jupiter': ('Capricorn', 5),
     'Saturn': ('Aries', 20),
 }
+
 # Own signs
 own_sign_lords = {
     'Sun': 'Leo',
@@ -95,8 +105,10 @@ own_sign_lords = {
     'Jupiter': ['Sagittarius', 'Pisces'],
     'Saturn': ['Capricorn', 'Aquarius'],
 }
+
 # Global variable to track if skyfield is available
 SKYFIELD_AVAILABLE = False
+
 # Function to check if skyfield is available and initialize it
 def check_skyfield():
     global SKYFIELD_AVAILABLE
@@ -107,6 +119,7 @@ def check_skyfield():
     except ImportError:
         SKYFIELD_AVAILABLE = False
         return None, None
+
 # Initialize ephemeris (cached) if skyfield is available
 def initialize_ephemeris():
     if not SKYFIELD_AVAILABLE:
@@ -120,6 +133,198 @@ def initialize_ephemeris():
     ts = load.timescale()
     earth = eph['earth']
     return eph, ts, earth
+
+# Planetary speeds (degrees per day)
+planet_speeds = {
+    'Sun': 1.0,
+    'Moon': 13.0,
+    'Mercury': 1.0,
+    'Venus': 1.0,
+    'Mars': 0.5,
+    'Jupiter': 0.08,
+    'Saturn': 0.03,
+    'Rahu': -0.05,  # retrograde
+    'Ketu': -0.05,  # retrograde
+    'Neptune': 0.03
+}
+
+# Known planetary positions for August 6, 2025 (from the provided table)
+def get_known_planetary_positions():
+    return [
+        {'Planet': 'Sun', 'Sign': 'Cancer', 'Degree': 20.0, 'Nakshatra': 'Ashlesha', 'Theme': 'Soul Power'},
+        {'Planet': 'Moon', 'Sign': 'Scorpio', 'Degree': 23.0, 'Nakshatra': 'Jyeshtha', 'Theme': 'Emotional Intensity'},
+        {'Planet': 'Mercury', 'Sign': 'Cancer', 'Degree': 10.0, 'Nakshatra': 'Pushya', 'Theme': 'Communication'},
+        {'Planet': 'Venus', 'Sign': 'Gemini', 'Degree': 15.0, 'Nakshatra': 'Ardra', 'Theme': 'Relationships'},
+        {'Planet': 'Mars', 'Sign': 'Leo', 'Degree': 5.0, 'Nakshatra': 'Magha', 'Theme': 'Action'},
+        {'Planet': 'Jupiter', 'Sign': 'Gemini', 'Degree': 15.0, 'Nakshatra': 'Ardra', 'Theme': 'Expansion'},
+        {'Planet': 'Saturn', 'Sign': 'Pisces', 'Degree': 25.0, 'Nakshatra': 'Revati', 'Theme': 'Structure'},
+        {'Planet': 'Rahu', 'Sign': 'Pisces', 'Degree': 25.0, 'Nakshatra': 'Revati', 'Theme': 'Karma'},
+        {'Planet': 'Ketu', 'Sign': 'Virgo', 'Degree': 25.0, 'Nakshatra': 'Chitra', 'Theme': 'Spirituality'},
+        {'Planet': 'Neptune', 'Sign': 'Pisces', 'Degree': 2.0, 'Nakshatra': 'Purva Bhadrapada', 'Theme': 'Intuition'}
+    ]
+
+# Create a planet record with all required fields
+def create_planet_record(planet_name, sign, degree, theme):
+    # Calculate nakshatra
+    sign_index = zodiac_signs.index(sign)
+    absolute_degree = sign_index * 30 + degree
+    nakshatra_index = int(absolute_degree / (360/27)) % 27
+    nakshatra = nakshatras[nakshatra_index]
+    
+    lord = sign_lords[sign]
+    sublord = nakshatra_lords[nakshatra]
+    
+    effect = 'Neutral'
+    if planet_name in exaltation:
+        exalt_sign, exalt_degree = exaltation[planet_name]
+        if sign == exalt_sign:
+            effect = 'Positive'
+    if planet_name in debilitation:
+        debil_sign, debil_degree = debilitation[planet_name]
+        if sign == debil_sign:
+            effect = 'Negative'
+    if planet_name in own_sign_lords:
+        own_signs = own_sign_lords[planet_name]
+        if isinstance(own_signs, list):
+            if sign in own_signs and effect != 'Negative':
+                effect = 'Positive'
+        else:
+            if sign == own_signs and effect != 'Negative':
+                effect = 'Positive'
+    
+    return {
+        'Planet': planet_name,
+        'Lord': lord,
+        'Sublord': sublord,
+        'Degree': degree,
+        'House': 0,  # We don't calculate house in this method
+        'Nakshatra': nakshatra,
+        'Effect': effect,
+        'Theme': theme
+    }
+
+# Adjust planetary positions based on days difference
+def adjust_planetary_positions(base_positions, days_diff):
+    new_positions = []
+    for planet in base_positions:
+        name = planet['Planet']
+        sign = planet['Sign']
+        degree = planet['Degree']
+        theme = planet['Theme']
+        
+        # Convert to absolute degree
+        sign_index = zodiac_signs.index(sign)
+        absolute_degree = sign_index * 30 + degree
+        
+        # Get planet speed
+        speed = planet_speeds.get(name, 0)
+        
+        # Adjust position
+        new_absolute_degree = absolute_degree + (days_diff * speed)
+        new_absolute_degree = new_absolute_degree % 360
+        
+        # Convert back to sign and degree
+        new_sign_index = int(new_absolute_degree / 30)
+        new_sign = zodiac_signs[new_sign_index]
+        new_degree = new_absolute_degree % 30
+        
+        # Create new record
+        new_record = create_planet_record(name, new_sign, new_degree, theme)
+        new_positions.append(new_record)
+    
+    return new_positions
+
+# Original fallback method (renamed)
+def get_planetary_positions_fallback_old(selected_date):
+    # Create a seed based on the date for consistent results
+    date_seed = int(selected_date.strftime('%Y%m%d'))
+    
+    # Always generate data for any date
+    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
+    positions = []
+    
+    # Use the seed to ensure consistent results for the same date
+    for i, planet in enumerate(planets):
+        # Create a local random generator with the seed
+        local_random = random.Random()
+        local_random.seed(date_seed + i)
+        
+        # Get sign index based on date and planet
+        sign_index = (date_seed + i) % 12
+        sign = zodiac_signs[sign_index]
+        
+        lord = sign_lords[sign]
+        
+        # Get nakshatra index
+        nakshatra_index = (date_seed + i * 2) % 27
+        nakshatra = nakshatras[nakshatra_index]
+        
+        sublord = nakshatra_lords[nakshatra]
+        
+        # Generate degree
+        degree = round(local_random.uniform(0, 30), 2)
+        
+        # Generate house
+        house = (date_seed + i) % 12 + 1
+        
+        # Determine effect based on planet and sign
+        effect = 'Neutral'
+        if planet in exaltation and sign == exaltation[planet][0]:
+            effect = 'Positive'
+        elif planet in debilitation and sign == debilitation[planet][0]:
+            effect = 'Negative'
+        elif planet in own_sign_lords:
+            own_signs = own_sign_lords[planet]
+            if isinstance(own_signs, list):
+                if sign in own_signs:
+                    effect = 'Positive'
+            else:
+                if sign == own_signs:
+                    effect = 'Positive'
+        
+        positions.append({
+            'Planet': planet,
+            'Lord': lord,
+            'Sublord': sublord,
+            'Degree': degree,
+            'House': house,
+            'Nakshatra': nakshatra,
+            'Effect': effect
+        })
+    
+    return positions
+
+# New fallback method that uses known data for August 6, 2025
+def get_planetary_positions_fallback(selected_date):
+    # Base date for known data
+    base_date = date(2025, 8, 6)
+    
+    # If selected date is August 6, 2025, return known data
+    if selected_date == base_date:
+        known_data = get_known_planetary_positions()
+        positions = []
+        for planet in known_data:
+            record = create_planet_record(
+                planet['Planet'], 
+                planet['Sign'], 
+                planet['Degree'],
+                planet['Theme']
+            )
+            positions.append(record)
+        return positions
+    
+    # Calculate days difference from base date
+    days_diff = (selected_date - base_date).days
+    
+    # If the date is too far from the base date, use the old fallback method
+    if abs(days_diff) > 30:
+        return get_planetary_positions_fallback_old(selected_date)
+    
+    # Otherwise, adjust from the known data
+    base_positions = get_known_planetary_positions()
+    new_positions = adjust_planetary_positions(base_positions, days_diff)
+    return new_positions
+
 # Calculate planetary positions for a given date and time
 def calculate_planetary_positions(selected_date, selected_time, selected_city):
     # Check if skyfield is available
@@ -207,65 +412,7 @@ def calculate_planetary_positions(selected_date, selected_time, selected_city):
         })
     
     return positions
-# Fallback function for planetary positions when skyfield is not available
-def get_planetary_positions_fallback(selected_date):
-    # Create a seed based on the date for consistent results
-    date_seed = int(selected_date.strftime('%Y%m%d'))
-    
-    # Always generate data for any date
-    planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu', 'Neptune']
-    positions = []
-    
-    # Use the seed to ensure consistent results for the same date
-    for i, planet in enumerate(planets):
-        # Create a local random generator with the seed
-        local_random = random.Random()
-        local_random.seed(date_seed + i)
-        
-        # Get sign index based on date and planet
-        sign_index = (date_seed + i) % 12
-        sign = zodiac_signs[sign_index]
-        
-        lord = sign_lords[sign]
-        
-        # Get nakshatra index
-        nakshatra_index = (date_seed + i * 2) % 27
-        nakshatra = nakshatras[nakshatra_index]
-        
-        sublord = nakshatra_lords[nakshatra]
-        
-        # Generate degree
-        degree = round(local_random.uniform(0, 30), 2)
-        
-        # Generate house
-        house = (date_seed + i) % 12 + 1
-        
-        # Determine effect based on planet and sign
-        effect = 'Neutral'
-        if planet in exaltation and sign == exaltation[planet][0]:
-            effect = 'Positive'
-        elif planet in debilitation and sign == debilitation[planet][0]:
-            effect = 'Negative'
-        elif planet in own_sign_lords:
-            own_signs = own_sign_lords[planet]
-            if isinstance(own_signs, list):
-                if sign in own_signs:
-                    effect = 'Positive'
-            else:
-                if sign == own_signs:
-                    effect = 'Positive'
-        
-        positions.append({
-            'Planet': planet,
-            'Lord': lord,
-            'Sublord': sublord,
-            'Degree': degree,
-            'House': house,
-            'Nakshatra': nakshatra,
-            'Effect': effect
-        })
-    
-    return positions
+
 # Check if a planet is retrograde
 def is_retrograde(planet_name, t, eph, earth):
     # Skip Sun and Moon as they are never retrograde
@@ -294,6 +441,7 @@ def is_retrograde(planet_name, t, eph, earth):
     
     # If diff is negative, the planet is retrograde
     return diff < 0
+
 # Get retrograde planets for a given date and time
 def get_retrograde_planets_calculated(selected_date, selected_time, selected_city):
     # Check if skyfield is available
@@ -324,6 +472,7 @@ def get_retrograde_planets_calculated(selected_date, selected_time, selected_cit
             retrogrades.append(f'{planet_name} Retrograde')
     
     return retrogrades
+
 # Fallback function for retrograde planets when skyfield is not available
 def get_retrograde_planets_fallback(selected_date):
     retrogrades = []
@@ -431,8 +580,10 @@ def get_retrograde_planets_fallback(selected_date):
             retrogrades.append('Pluto Retrograde')
     
     return retrogrades
+
 # Create tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Input Date", "Planetary Report", "Planetary Effect", "Upcoming Planetary Transit", "Today Transit"])
+
 # Function to generate moon phases for any month
 def generate_moon_phases(year, month):
     phases = []
@@ -474,6 +625,7 @@ def generate_moon_phases(year, month):
     })
     
     return phases
+
 # Function to generate moon transits for any month
 def generate_moon_transits(year, month):
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
@@ -493,6 +645,7 @@ def generate_moon_transits(year, month):
         })
     
     return transits
+
 # Function to generate planetary aspects for any month
 def generate_planetary_aspects(year, month):
     aspects = []
@@ -540,6 +693,7 @@ def generate_planetary_aspects(year, month):
     })
     
     return aspects
+
 # Function to get planetary positions for a specific date
 def get_planetary_positions(selected_date):
     return calculate_planetary_positions(
@@ -547,6 +701,7 @@ def get_planetary_positions(selected_date):
         st.session_state.selected_time, 
         st.session_state.selected_city
     )
+
 # Function to get next house changes for a specific date
 def get_next_house_changes(selected_date):
     # Create a seed based on the date for consistent results
@@ -584,6 +739,7 @@ def get_next_house_changes(selected_date):
         })
     
     return changes
+
 # Function to get intraday aspects for a specific date
 def get_intraday_aspects(selected_date):
     # Create a seed based on the date for consistent results
@@ -641,6 +797,7 @@ def get_intraday_aspects(selected_date):
     # Sort aspects by time
     aspects.sort(key=lambda x: x['Time'])
     return aspects
+
 # Function to create birth chart visualization
 def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     # Define zodiac signs and their degrees
@@ -753,6 +910,7 @@ def create_birth_chart(planetary_positions, title="Birth Chart / Natal Chart"):
     )
     
     return fig
+
 # Function to get all planetary transits for a year
 def get_all_planetary_transits(year):
     transits = []
@@ -1334,6 +1492,7 @@ def get_all_planetary_transits(year):
     })
     
     return transits
+
 # Function to display upcoming transits in box table format
 def display_upcoming_transits(year, month):
     # Get all transits for the year
@@ -1387,6 +1546,7 @@ def display_upcoming_transits(year, month):
                             """, unsafe_allow_html=True)
                 else:
                     st.info("No major transits this month")
+
 # Tab 1: Input Date
 with tab1:
     st.header("Select Date for Report")
@@ -1447,6 +1607,7 @@ with tab1:
     
     # Display upcoming transits in box table format
     display_upcoming_transits(selected_year, selected_month)
+
 # Generate dynamic data based on selected date
 selected_year = st.session_state.selected_date.year
 selected_month = st.session_state.selected_date.month
@@ -1489,6 +1650,7 @@ planetary_details = {
     ],
     'Moon Phases': moon_phases
 }
+
 # Planetary effects on markets
 planetary_effects = {
     'Mercury Retrograde': {
@@ -1569,6 +1731,7 @@ planetary_effects = {
         'Effect': 'Bullish - Transformational opportunities, deep changes'
     }
 }
+
 # Intraday moon aspects (updated with correct real-time data for August 4, 2025)
 intraday_moon_aspects = {
     '2025-08-04': [
@@ -1588,6 +1751,7 @@ intraday_moon_aspects = {
         {'time': '16:00', 'aspect': 'Moon Sextile Venus', 'effect': 'Bullish', 'description': 'Harmony, social connections, positive close'}
     ]
 }
+
 # Tab 2: Planetary Report
 with tab2:
     st.header("Planetary Report")
@@ -1627,6 +1791,7 @@ with tab2:
         st.markdown("### Moon Phases")
         moon_df = pd.DataFrame(planetary_details['Moon Phases'])
         st.dataframe(moon_df, use_container_width=True)
+
 # Tab 3: Planetary Effect
 with tab3:
     st.header("Planetary Effect on Markets")
@@ -1695,6 +1860,7 @@ with tab3:
                 st.markdown("---")
     else:
         st.info("No significant planetary events for the selected date and time.")
+
 # Tab 4: Upcoming Planetary Transit
 with tab4:
     st.header("Upcoming Planetary Transit")
@@ -1901,6 +2067,7 @@ with tab4:
         # Show moon transit data in a table
         st.markdown("### Moon Transit Schedule")
         st.dataframe(moon_transit_df, use_container_width=True)
+
 # Tab 5: Today Transit
 with tab5:
     st.header("Today Transit")
@@ -1974,6 +2141,7 @@ with tab5:
         pip install skyfield
         ```
         """)
+
 # Add a footer
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: gray;'>Astro Transit For Daily Transit &copy; 2025</p>", unsafe_allow_html=True)
